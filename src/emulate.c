@@ -3,34 +3,28 @@
 #include <stdint.h>
 #include <string.h>
 
-#define MEMSIZE 64 * 1024
-#define NOREGS 17
+#include "dataprocessing.h"
+#include "utilities.h"
 
-typedef uint8_t byte;
-typedef uint32_t word;
+enum InstructionType determine_instruction_type(word w);
 
-typedef struct state {
-  byte memory[MEMSIZE];
-  word registers[NOREGS];
-} state_t;
+instruction_t decode_instruction(word w);
 
-enum InstructionType { DP, M, SDT, B }
-
-typedef struct instruction {
-  enum InstructionType type;
-  byte cond;
-  union {
-    struct { byte i, opcode, s, rn, rd; uint16_t operand2;  };  
-    struct { byte a, s, rd, rn, rs, rm; };  
-    struct { byte i, p, u, l, rn, rd; uint16_t offset; };  
-    struct { word offset; };  
-  }  
+void execute(instruction_t instruction, state_t *s) {
+  switch (instruction.type) {
+    case DP: execute_DP(instruction, s); break;
+    case M: execute_M(instruction, s); break;
+    case SDT: execute_SDT(instruction, s); break;
+    case B: execute_B(instruction, s); break;
+  }
 }
 
 void init_emulator(state_t *s) {
   memset(s->memory, 0, MEMSIZE * sizeof(byte));
   memset(s->registers, 0, NOREGS * sizeof(word));
 }
+
+
 void swap_endian(word *x) {
   *x = (*x>>24) |
        ((*x<<8) & 0x00FF0000) |
