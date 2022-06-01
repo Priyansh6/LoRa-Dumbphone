@@ -14,11 +14,23 @@ typedef struct state {
   word registers[NOREGS];
 } state_t;
 
+enum InstructionType { DP, M, SDT, B }
+
+typedef struct instruction {
+  enum InstructionType type;
+  byte cond;
+  union {
+    struct { byte i, opcode, s, rn, rd; uint16_t operand2;  };  
+    struct { byte a, s, rd, rn, rs, rm; };  
+    struct { byte i, p, u, l, rn, rd; uint16_t offset; };  
+    struct { word offset; };  
+  }  
+}
+
 void init_emulator(state_t *s) {
   memset(s->memory, 0, MEMSIZE * sizeof(byte));
   memset(s->registers, 0, NOREGS * sizeof(word));
 }
-
 void swap_endian(word *x) {
   *x = (*x>>24) |
        ((*x<<8) & 0x00FF0000) |
