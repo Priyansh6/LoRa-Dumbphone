@@ -17,12 +17,22 @@ enum InstructionType { DP, M, SDT, B };
 typedef struct instruction {
   enum InstructionType type;
   byte cond;
-  union {
-    struct { byte i, opcode, s, rn, rd; uint16_t operand2;  };  
-    struct { byte a, s, rd, rn, rs, rm; };  
-    struct { byte i, p, u, l, rn, rd; uint16_t offset; };  
-    struct { word offset; };  
-  }  
+  union contents_u {
+    struct dp_s { 
+      byte i, opcode, s, rn, rd; 
+      uint16_t operand2;  
+    } dp;  
+    struct m_s { 
+      byte a, s, rd, rn, rs, rm; 
+    } m;  
+    struct sdt_s { 
+      byte i, p, u, l, rn, rd; 
+      uint16_t offset; 
+    } sdt;  
+    struct b_s { 
+      word offset; 
+    } b;  
+  } contents;
 } instruction_t;
 
 #endif

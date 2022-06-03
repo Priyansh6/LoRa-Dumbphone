@@ -24,7 +24,6 @@ void init_emulator(state_t *s) {
   memset(s->registers, 0, NOREGS * sizeof(word));
 }
 
-
 void swap_endian(word *x) {
   *x = (*x>>24) |
        ((*x<<8) & 0x00FF0000) |
@@ -33,7 +32,6 @@ void swap_endian(word *x) {
 }
 
 word getWord(byte *memory, int n){
-
   int start = n * sizeof(word);
   return (memory[start] << 24)     |
          (memory[start + 1] << 16) |   
