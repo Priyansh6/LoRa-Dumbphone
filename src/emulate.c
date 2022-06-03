@@ -4,6 +4,9 @@
 #include <string.h>
 
 #include "dataprocessing.h"
+#include "multiply.h"
+#include "singledatatransfer.h"
+#include "branch.h"
 #include "utilities.h"
 
 enum InstructionType determine_instruction_type(word w);
