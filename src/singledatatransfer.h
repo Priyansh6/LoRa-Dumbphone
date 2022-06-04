@@ -2,6 +2,7 @@
 #define SINGLEDATATRANSFER_H
 
 #include "utilities.h"
+#include "emulate.c"
 
 void execute_SDT(instruction_t, state_t*);
 
