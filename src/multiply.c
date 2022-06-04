@@ -32,7 +32,7 @@ void execute_M(instruction_t type, state_t* state) {
   if (type.contents_u.ms.s == 1) {
 
     int n_flag = res & 0x80000000;
-    int z_flag = res == 0 ? 0x4FFFFFFF : 0x0FFFFFFF;
+    int z_flag = res == 0 ? 0x7FFFFFFF : 0x3FFFFFFF;
     int final_flags = n_flag | z_flag;
 
     state.registers[16] = state.registers[16] & final_flags; 
