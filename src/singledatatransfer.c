@@ -46,7 +46,7 @@ word imediate_offset(byte i, uint16_t offset_raw, state_t *state){
 }
 
 word getWord(byte *memory, int n){
-  int start = n * sizeof(word);
+  int start = n ;
   return (memory[start] << 24)     |
          (memory[start + 1] << 16) |   
          (memory[start + 2] << 8)  |
