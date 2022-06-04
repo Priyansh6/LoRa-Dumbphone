@@ -9,7 +9,14 @@ all: assemble emulate
 
 assemble: assemble.o
 
-emulate: emulate.o
+emulate: emulate.o terminate.o utilities.o
+	gcc emulate.o terminate.o utilities.o -o emulate
+
+emulate.o: emulate.c
+
+terminate.o: terminate.c
+
+utilities.o: utilities.c
 
 clean:
 	rm -f $(wildcard *.o)
