@@ -9,10 +9,18 @@ all: assemble emulate
 
 assemble: assemble.o
 
-emulate: emulate.o terminate.o utilities.o
-	gcc emulate.o terminate.o utilities.o -o emulate
+emulate: emulate.o dataprocessing.o multiply.o singledatatransfer.o branch.o terminate.o utilities.o 
+	gcc emulate.o dataprocessing.o multiply.o singledatatransfer.o branch.o terminate.o utilities.o -o emulate
 
 emulate.o: emulate.c
+
+dataprocessing.o: dataprocessing.c
+
+multiply.o: multiply.c
+
+singledatatransfer.o: singledatatransfer.c 
+
+branch.o: branch.c 
 
 terminate.o: terminate.c
 

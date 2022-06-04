@@ -1,40 +1,6 @@
 #include "utilities.h"
 #include <stdint.h>
 
-
-word shifted_rm(uint16_t shift_rm, state_t* s) {
-  word rm = s->registers[shift_rm & 0xF];
-
-  byte shift = (shift_rm >> 4) & 0xFF;
-  byte shift_type = (shift >> 1) & 0x3;
-
-  word shift_amount;
-  if (shift & 1) {
-    shift_amount = s->registers[shift >> 4];
-  } else {
-    shift_amount = shift >> 3;
-  }
-
-  /* Logical shift left */
-  if (shift_type == 0) {
-    return rm << shift_amount;
-  }
-
-  // Logical shift right /
-  if (shift_type == 1) {
-    return rm >> shift_amount; 
-  }
-
-  // Arithmetic shift right /
-  if (shift_type == 2) {
-    return (int32_t) rm >> shift_amount;
-  }
-
-  // Rotate shift right /
-  shift_amount %= sizeof(word) ;
-  return (rm >> shift_amount) | (rm << (sizeof(word) * 8 - shift_amount));
-}
-
 word imediate_offset(byte i, uint16_t offset_raw, state_t *state){
 
   if (i == 1) {

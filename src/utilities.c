@@ -10,7 +10,7 @@ word shifted_rm(uint16_t shift_rm, state_t* s) {
 
   word shift_amount;
   if (shift & 1) {
-    shift_amount = s<-registers[shift >> 4];
+    shift_amount = s->registers[shift >> 4];
   } else {
     shift_amount = shift >> 3;
   }
