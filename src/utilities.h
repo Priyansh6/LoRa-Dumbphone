@@ -39,7 +39,9 @@ typedef struct instruction {
   } contents;
 } instruction_t;
 
-void update_cpsr(word modified_register, int c_bit);
+word shifted_rm(uint16_t, state_t*);
+word rotate_shift_right(word, word);
+
 void pprint_instruction_t(instruction_t instruction);
 void pprint_state_t(state_t state);
 

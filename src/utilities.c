@@ -2,7 +2,39 @@
 
 #include "utilities.h"
 
-void update_cpsr(word modified_register, int c_bit);
+word shifted_rm(uint16_t shift_rm, state_t* s) {
+  word rm = s->registers[shift_rm & 0xF];
+
+  byte shift = (shift_rm >> 4) & 0xFF;
+  byte shift_type = (shift >> 1) & 0x3;
+
+  word shift_amount;
+  if (shift & 1) {
+    shift_amount = s<-registers[shift >> 4];
+  } else {
+    shift_amount = shift >> 3;
+  }
+
+  /* Logical shift left */
+  if (shift_type == 0) {
+    return rm << shift_amount;
+  }  
+  /* Logical shift right */
+  if (shift_type == 1) {
+    return rm >> shift_amount; 
+  }
+  /* Arithmetic shift right */
+  if (shift_type == 2) {
+    return (int32_t) rm >> shift_amount;
+  }
+  /* Rotate shift right */
+  return rotate_shift_right(rm, shift_amount);
+}
+
+word rotate_shift_right(word x, word shift_amount) {
+  shift_amount %= sizeof(word) * 8;
+  return (x >> shift_amount) | (x << (sizeof(word) * 8 - shift_amount));
+}
 
 void pprint_instruction_t(instruction_t instruction) {
   printf("Instruction\n");
