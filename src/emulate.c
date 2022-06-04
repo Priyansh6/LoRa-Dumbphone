@@ -4,10 +4,10 @@
 #include <stdint.h>
 #include <string.h>
 
-//#include "dataprocessing.h"
-//#include "multiply.h"
-//#include "singledatatransfer.h"
-//#include "branch.h"
+#include "dataprocessing.h"
+#include "multiply.h"
+#include "singledatatransfer.h"
+#include "branch.h"
 #include "terminate.h"
 #include "utilities.h"
 
@@ -92,10 +92,10 @@ void execute(instruction_t instruction, state_t *s) {
     return;
   }
   switch (instruction.type) {
-    //case DP: execute_DP(instruction, s); break;
-    //case M: execute_M(instruction, s); break;
-    //case SDT: execute_SDT(instruction, s); break;
-    //case B: execute_B(instruction, s); break;
+    case DP: execute_DP(instruction, s); break;
+    case M: execute_M(instruction, s); break;
+    case SDT: execute_SDT(instruction, s); break;
+    case B: execute_B(instruction, s); break;
     case T: execute_T(instruction, s); break;
     default:
       pprint_instruction_t(instruction); 
