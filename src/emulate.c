@@ -65,7 +65,32 @@ instruction_t decode_instruction(word w) {
   return instruction;
 }
 
+bool cond_true(byte cond, word cpsr) {
+  byte n = (cpsr >> 31) & 1;
+  byte z = (cpsr >> 30) & 1;
+  byte v = (cpsr >> 28) & 1;
+  bool res;
+  switch (cond) {
+    case 0: res = n; break;
+    case 1: res = !n; break;
+    case 10: res =  n == v; break;
+    case 11: res = n != v; break;
+    case 12: res = !z && (n == v); break;
+    case 13: res = z || (n != v); break;
+    case 14: 
+    default: res = true;
+  }
+  return res;
+}
+
 void execute(instruction_t instruction, state_t *s) {
+  if (instruction.type == T) {
+    execute_T(instruction, s);
+  }
+
+  if (!cond_true(instruction.cond, s->registers[CPSR])) {
+    return;
+  }
   switch (instruction.type) {
     //case DP: execute_DP(instruction, s); break;
     //case M: execute_M(instruction, s); break;
@@ -88,7 +113,6 @@ void swap_endian(word *x) {
        ((*x>>8) & 0x0000FF00) |
        (*x<<24);
 }
-
 
 void load_binary(state_t *s, FILE *fp) {
   fread(&s->memory, sizeof(byte), MEMSIZE, fp);
