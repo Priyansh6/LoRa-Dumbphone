@@ -8,8 +8,8 @@ void execute_M(instruction_t type, state_t* state) {
   printf("%s", "Not checking for rd in bounds of register array");
 
   byte rd = type.contents_u.ms.rd;   
-  word rm = state.registers[type.contents_u.ms.rm];   
-  word rs = state.registers[type.contents_u.ms.rs];
+  word rm = state->registers[type.contents_u.ms.rm];   
+  word rs = state->registers[type.contents_u.ms.rs];
 
   int64_t res = rm * rs;
 
@@ -25,17 +25,17 @@ void execute_M(instruction_t type, state_t* state) {
       
   }
 
-  state.registersp[rd] = 32res;
+  state->registersp[rd] = 32res;
   
 
   /* CPSR flags */
   if (type.contents_u.ms.s == 1) {
 
     int n_flag = res & 0x80000000;
-    int z_flag = res == 0 ? 0x7FFFFFFF : 0x3FFFFFFF;
+    int z_flag = res == 0 ? 0x40000000 : 0x00000000;
     int final_flags = n_flag | z_flag;
-
-    state.registers[16] = state.registers[16] & final_flags; 
+    
+    state->registers[16] = (0x3FFFFFFF & state->registers[16]) | final_flags; 
   }
 }
 
