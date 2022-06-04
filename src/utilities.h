@@ -3,6 +3,10 @@
 
 #define MEMSIZE 64 * 1024
 #define NOREGS 17
+#define PC 15
+#define CPSR 16
+
+#include <stdint.h>
 
 typedef uint8_t byte;
 typedef uint32_t word;
@@ -12,7 +16,7 @@ typedef struct state {
   word registers[NOREGS];
 } state_t;
 
-enum InstructionType { DP, M, SDT, B };
+enum InstructionType { DP, M, SDT, B, T };
 
 typedef struct instruction {
   enum InstructionType type;
@@ -34,5 +38,11 @@ typedef struct instruction {
     } b;  
   } contents;
 } instruction_t;
+
+void update_cpsr(word modified_register, int c_bit);
+void pprint_instruction_t(instruction_t instruction);
+void pprint_state_t(state_t state);
+
+word get_word(byte *memory, int n);
 
 #endif
