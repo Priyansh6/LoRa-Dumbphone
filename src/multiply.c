@@ -1,11 +1,8 @@
-#include <stdio.h>
 #include <stdint.h>
 
 #include "utilities.h"
 
 void execute_M(instruction_t type, state_t* state) {
-  
-  printf("%s", "Not checking for rd in bounds of register array");
 
   byte rd = type.contents.m.rd;   
   word rm = state->registers[type.contents.m.rm];   
