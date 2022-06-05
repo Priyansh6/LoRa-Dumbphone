@@ -60,16 +60,25 @@ void execute_DP(instruction_t instruction, state_t* s) {
   }
   
   if (instruction.contents.dp.s) {
-    int32_t so1 = (int32_t) o1;
-    int32_t so2 = (int32_t) o2;
-    int32_t sresult = (int32_t) result;
-    if (instruction.contents.dp.opcode == 2 || instruction.contents.dp.opcode == 3 || instruction.contents.dp.opcode == 10) {
-      so2 = -so2;
+    word c_flag = 0;
+    switch(instruction.contents.dp.opcode) {
+      case 2:
+      case 10:
+        if (result <= o1) {
+          c_flag = 0x20000000;
+        }
+        break;
+      case 3:
+        if (result <= o2) {
+          c_flag = 0x20000000;
+        }
+        break;
+      case 4:
+        if (result < o1 || result < o2) {
+          c_flag = 0x20000000;
+        } 
     }
-
-    word c_flag = (so1 > 0 && so2 > 0 && sresult < 0) || (so1 < 0 && so2 < 0 && sresult > 0)
-      ? 0x20000000 : 0;
-    word z_flag = result ? 0x40000000 : 0;
+    word z_flag = result ? 0 : 0x40000000;
     word n_flag = result >> (sizeof(word) * 8 - 1) ? 0x80000000 : 0;
     word final_flag = c_flag | z_flag | n_flag;
 
