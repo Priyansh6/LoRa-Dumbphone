@@ -47,4 +47,6 @@ void pprint_state_t(state_t state);
 
 word get_word(byte *memory, int n);
 
+word get_word_raw(byte *memory, int n);
+
 #endif

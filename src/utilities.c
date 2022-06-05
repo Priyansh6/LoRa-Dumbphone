@@ -79,17 +79,17 @@ void pprint_state_t(state_t state) {
   printf("Registers:\n");
   for (int i = 0; i < NOREGS; i++) {
     if (i == PC) {
-      printf("PC  :% 11d (0x%010x)\n", state.registers[i], state.registers[i]);
+      printf("PC  : % 10d (0x%08x)\n", state.registers[i], state.registers[i]);
     } else if (i == CPSR) {
-      printf("CPSR:% 11d (0x%010x)\n", state.registers[i], state.registers[i]);
-    } else {
-      printf("$%-3d:% 11d (0x%010x)\n", i, state.registers[i], state.registers[i]);
+      printf("CPSR: % 10d (0x%08x)\n", state.registers[i], state.registers[i]);
+    } else if (i != 14 && i != 13){
+      printf("$%-3d: % 10d (0x%08x)\n", i, state.registers[i], state.registers[i]);
     }
   }
   printf("Non-zero memory:\n");
   for (int i = 0; i < MEMSIZE; i += 4) {
     if (state.memory[i] != 0) {
-      printf("%#010x: %#010x\n", i, get_word(state.memory, i));//state.memory[i]);
+      printf("0x%08x: 0x%08x\n", i, get_word(state.memory, i));//state.memory[i]);
     }
   }
 }
@@ -99,5 +99,13 @@ word get_word(byte *memory, int n){
          (memory[n + 2] << 16) |
          (memory[n + 1] << 8)  |
          (memory[n]);
+}
+
+word get_word_raw(byte *memory, int n){
+  return (memory[n] << 24) |
+         (memory[n + 1] << 16) |
+         (memory[n + 2] << 8)  |
+         (memory[n + 3]);
+
 }
 

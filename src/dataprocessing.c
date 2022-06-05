@@ -8,7 +8,7 @@ void execute_DP(instruction_t instruction, state_t* s) {
   word o2;
   if (instruction.contents.dp.i) {
     o2 = rotate_shift_right((word) instruction.contents.dp.operand2 & 0xFF, 
-        (word) (instruction.contents.dp.operand2 >> 7) * 2);
+        (word) (instruction.contents.dp.operand2 >> 8) * 2);
   } else {
     o2 = shifted_rm(instruction.contents.dp.operand2, s);
   }

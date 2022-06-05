@@ -18,13 +18,13 @@ enum InstructionType determine_instruction_type(word w) {
   if (w >> 26 & 1) {
     return SDT;
   }
-  if (w >> 26 & 1) {
+  if (w >> 27 & 1) {
     return B;
   }
-  if (w >> 25) {
+  if (w >> 25 & 1) {
     return DP;
   }
-  if ((w >> 4) == 9) {
+  if ((w >> 4 & 0xF) == 9) {
     return M;
   }
   return DP;
@@ -84,6 +84,7 @@ bool cond_true(byte cond, word cpsr) {
 }
 
 void execute(instruction_t instruction, state_t *s) {
+  pprint_instruction_t(instruction); 
   if (instruction.type == T) {
     execute_T(instruction, s);
   }
@@ -138,6 +139,7 @@ int main(int argc, char **argv) {
   state_t s;
   init_emulator(&s);
   load_binary(&s, fp);
+  
 
   int i = 0;
   byte curr = s.memory[i]; 
@@ -158,9 +160,10 @@ int main(int argc, char **argv) {
   int iter = 0;
   while (true) {
     printf("Iter: %d\n", iter);
+    pprint_state_t(s);
     printf("PC: %d\n", s.registers[PC]);
     fetch_tmp = fetch;
-    fetch = get_word(s.memory, s.registers[PC]);
+    fetch = get_word_raw(s.memory, s.registers[PC]);
     printf("Fetched: %x\n", fetch);
     decode_tmp = decode; 
     if (has_fetched) {
