@@ -13,7 +13,7 @@
 
 #define DEBUG_STATEMENT(x) if(is_debug) {x;};
 
-bool is_debug = true;
+bool is_debug = false;
 
 enum InstructionType determine_instruction_type(word w) {
   if (w == 0) {
@@ -75,8 +75,8 @@ bool cond_true(byte cond, word cpsr) {
   byte v = (cpsr >> 28) & 1;
   bool res;
   switch (cond) {
-    case 0: res = n; break;
-    case 1: res = !n; break;
+    case 0: res = z; break;
+    case 1: res = !z; break;
     case 10: res =  n == v; break;
     case 11: res = n != v; break;
     case 12: res = !z && (n == v); break;

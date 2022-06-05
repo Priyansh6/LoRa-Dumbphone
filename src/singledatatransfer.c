@@ -1,4 +1,6 @@
+#include "gpio.h"
 #include "utilities.h"
+
 #include <stdio.h>
 #include <stdint.h>
 
@@ -12,16 +14,25 @@ word imediate_offset(byte i, uint16_t offset_raw, state_t *state){
 
 }
 
+/*
 void storeWord(word w, state_t *state, int dest){
   
   byte *bytes = (byte *) &w;
  
-  printf("dest :%x\n", dest);
-  printf("w :%x\n", w);
-  printf("bytes[0] :%x\n", bytes[0]);
-  printf("bytes[1] :%x\n", bytes[1]);
-  printf("bytes[2] :%x\n", bytes[2]);
-  printf("bytes[3] :%x\n", bytes[3]);
+  //printf("dest :%x\n", dest);
+  //printf("w :%x\n", w);
+  //printf("bytes[0] :%x\n", bytes[0]);
+  //printf("bytes[1] :%x\n", bytes[1]);
+  //printf("bytes[2] :%x\n", bytes[2]);
+  //printf("bytes[3] :%x\n", bytes[3]);
+
+  if (dest >= GPIO_START) {
+    if confing 
+      config pins 
+    if ste 
+      set pins 
+    if .. 
+  }
  
   state->memory[dest]     = bytes[0];
   state->memory[dest + 1] = bytes[1];
@@ -29,6 +40,7 @@ void storeWord(word w, state_t *state, int dest){
   state->memory[dest + 3] = bytes[3];
 
 }
+*/
 
 void execute_SDT(instruction_t inst, state_t *state){
   
@@ -39,22 +51,39 @@ void execute_SDT(instruction_t inst, state_t *state){
   
   int multi = (inst.contents.sdt.u == 0)? -1 : 1;
    
-  int comp = rn;
+  int addr = rn;
   
   if (inst.contents.sdt.p) {
-    comp += multi * offset;
+    addr += multi * offset;
   }
   
-  //printf("%d\n", comp);
+  //printf("%d\n", addr);
 
   if (inst.contents.sdt.l == 0){
-    storeWord(rd, state, comp);
+    if (addr >= GPIO_START) {
+      switch (addr) {
+        case GPIO_CLEAR:
+          clear_pin(state, rd);
+        break;
+        case GPIO_SET:
+          set_pin(state, rd);
+        break;
+        default:
+          configure_pin(state, addr, rd);
+      }
+    } else {
+        set_word(state->memory, addr, rd);
+        //storeWord(rd, state, addr);
+    }
   } else {
-    state->registers[inst.contents.sdt.rd] = get_word(state->memory, comp);
+    if (addr >= GPIO_START) {
+      state->registers[inst.contents.sdt.rd] = addr;
+    }
+    state->registers[inst.contents.sdt.rd] = get_word(state->memory, addr);
   }
 
   if (inst.contents.sdt.p == 0 ){
-    state->registers[inst.contents.sdt.rn] = comp + multi * offset;
+    state->registers[inst.contents.sdt.rn] = addr + multi * offset;
   }
 
 }

@@ -2,6 +2,7 @@
 
 #include "utilities.h"
 
+
 word shifted_rm(uint16_t shift_rm, state_t* s) {
   word rm = s->registers[shift_rm & 0xF];
 
@@ -99,6 +100,7 @@ word get_word(byte *memory, int n){
   //printf("%x\n", memory[n]);
   //printf("%x\n", memory[n +1]);
   //printf("%x\n", memory[n + 2]);
+
   //printf("%x\n", memory[n + 3]);
   return (memory[n + 3] << 24) |
          (memory[n + 2] << 16) |
@@ -114,3 +116,9 @@ word get_word_raw(byte *memory, int n){
 
 }
 
+void set_word(byte *memory, int addr, word w) {
+  memory[addr] = (byte) w & 0xF;
+  memory[addr + 1] = (byte) (w >> 4) & 0xF;
+  memory[addr + 2] = (byte) (w >> 8) & 0xF;
+  memory[addr + 3] = (byte) (w >> 12) & 0xF;
+}

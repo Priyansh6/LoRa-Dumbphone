@@ -5,6 +5,10 @@
 #define NOREGS 17
 #define PC 15
 #define CPSR 16
+#define GPIOSIZE 12
+#define GPIO_CLEAR 0x20200028
+#define GPIO_SET 0x2020001C
+#define GPIO_START 0x20200000
 
 #include <stdint.h>
 
@@ -14,6 +18,9 @@ typedef uint32_t word;
 typedef struct state {
   byte memory[MEMSIZE];
   word registers[NOREGS];
+  byte gpio_memory[GPIOSIZE];
+  word gpio_clear;
+  word gpio_set;
 } state_t;
 
 enum InstructionType { DP, M, SDT, B, T };
@@ -48,5 +55,7 @@ void pprint_state_t(state_t state);
 word get_word(byte *memory, int n);
 
 word get_word_raw(byte *memory, int n);
+
+void set_word(byte *memory, int addr, word w);
 
 #endif
