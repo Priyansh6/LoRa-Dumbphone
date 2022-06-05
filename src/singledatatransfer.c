@@ -25,7 +25,7 @@ void storeWord(word w, state_t *state, int dest){
 
 void execute_SDT(instruction_t inst, state_t *state){
   
-  word rn = state->registers[inst.contents.sdt.i]; 
+  word rn = state->registers[inst.contents.sdt.rn]; 
   word rd = state->registers[inst.contents.sdt.rd];
 
   word offset = imediate_offset(inst.contents.sdt.i, inst.contents.sdt.offset, state);
@@ -34,7 +34,7 @@ void execute_SDT(instruction_t inst, state_t *state){
    
   int comp = rn + mult * offset;
 
-  printf("%d\n", comp);
+  //printf("%d\n", comp);
 
   if (inst.contents.sdt.l == 0){
     storeWord(rd, state, comp);

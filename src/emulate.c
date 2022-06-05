@@ -122,11 +122,11 @@ void swap_endian(word *x) {
 void load_binary(state_t *s, FILE *fp) {
   fread(&s->memory, sizeof(byte), MEMSIZE, fp);
   
-  word *words = (word *) s->memory;
+  //word *words = (word *) s->memory;
 
-  for (int i = 0; i < MEMSIZE / sizeof(word); i++) {
+  /*for (int i = 0; i < MEMSIZE / sizeof(word); i++) {
     swap_endian(&words[i]);
-  }
+  }*/
 }
 
 int main(int argc, char **argv) {
@@ -147,10 +147,10 @@ int main(int argc, char **argv) {
 
   DEBUG_STATEMENT(int i = 0;
   byte curr = s.memory[i]; 
-  while (curr != 0) {
+  while (get_word(s.memory, i) != 0) {
     printf("s.memory[%d]: %x %p\n", i, curr, (void *) &curr);
+    i++; 
     curr = s.memory[i];
-    i++;
   });
 
   word fetch;
@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
     DEBUG_STATEMENT(pprint_state_t(s));
     DEBUG_STATEMENT(printf("PC: %d\n", s.registers[PC]));
     fetch_tmp = fetch;
-    fetch = get_word_raw(s.memory, s.registers[PC]);
+    fetch = get_word(s.memory, s.registers[PC]);
     DEBUG_STATEMENT(printf("Fetched: %x\n", fetch));
     decode_tmp = decode; 
     if (has_fetched) {

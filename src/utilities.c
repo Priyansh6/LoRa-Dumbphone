@@ -88,13 +88,18 @@ void pprint_state_t(state_t state) {
   }
   printf("Non-zero memory:\n");
   for (int i = 0; i < MEMSIZE; i += 4) {
-    if (state.memory[i] != 0) {
-      printf("0x%08x: 0x%08x\n", i, get_word(state.memory, i));//state.memory[i]);
+    if (get_word_raw(state.memory, i) != 0) {
+      printf("0x%08x: 0x%08x\n", i, get_word_raw(state.memory, i));//state.memory[i]);
     }
   }
 }
 
 word get_word(byte *memory, int n){
+  //printf("%x\n", n);
+  //printf("%x\n", memory[n]);
+  //printf("%x\n", memory[n +1]);
+  //printf("%x\n", memory[n + 2]);
+  //printf("%x\n", memory[n + 3]);
   return (memory[n + 3] << 24) |
          (memory[n + 2] << 16) |
          (memory[n + 1] << 8)  |
