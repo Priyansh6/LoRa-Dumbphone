@@ -10,4 +10,5 @@ void clear_pin(state_t *s, word w);
 void set_pin(state_t *s, word w);
 void configure_pin(state_t *s, word address, word w);
 
+void pprint_access_message(word addr);
 #endif

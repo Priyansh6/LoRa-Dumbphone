@@ -9,6 +9,7 @@
 #define GPIO_CLEAR 0x20200028
 #define GPIO_SET 0x2020001C
 #define GPIO_START 0x20200000
+#define GPIO_END 0x2020002C
 
 #include <stdint.h>
 

@@ -51,12 +51,17 @@ void execute_SDT(instruction_t inst, state_t *state){
   
   int multi = (inst.contents.sdt.u == 0)? -1 : 1;
    
-  int addr = rn;
+  word addr = rn;
   
   if (inst.contents.sdt.p) {
     addr += multi * offset;
   }
-  
+ 
+  if ((addr >= MEMSIZE && addr < GPIO_START) || addr >= GPIO_END){
+    printf("Error: Out of bounds memory access at address 0x%08x\n", addr);
+    return;
+  }
+ 
   //printf("%d\n", addr);
 
   if (inst.contents.sdt.l == 0){
@@ -78,8 +83,10 @@ void execute_SDT(instruction_t inst, state_t *state){
   } else {
     if (addr >= GPIO_START) {
       state->registers[inst.contents.sdt.rd] = addr;
+      pprint_access_message(addr);
+    } else {
+      state->registers[inst.contents.sdt.rd] = get_word(state->memory, addr);
     }
-    state->registers[inst.contents.sdt.rd] = get_word(state->memory, addr);
   }
 
   if (inst.contents.sdt.p == 0 ){

@@ -15,14 +15,19 @@ word shifted_rm(uint16_t shift_rm, state_t* s) {
   } else {
     shift_amount = shift >> 3;
   }
-
+  /*
+  printf("shift_type %x\n", shift_type);
+  printf("shift_amount %x\n", shift_amount);
+  printf("shift %x\n", shift);
+  printf("rm %x\n", rm);
+  */
   /* Logical shift left */
   if (shift_type == 0) {
     return rm << shift_amount;
   }  
   /* Logical shift right */
   if (shift_type == 1) {
-    return rm >> shift_amount; 
+    return rm >> shift_amount;
   }
   /* Arithmetic shift right */
   if (shift_type == 2) {
@@ -80,11 +85,18 @@ void pprint_state_t(state_t state) {
   printf("Registers:\n");
   for (int i = 0; i < NOREGS; i++) {
     if (i == PC) {
-      printf("PC  : % 10d (0x%08x)\n", state.registers[i], state.registers[i]);
+      printf("PC  :");
     } else if (i == CPSR) {
-      printf("CPSR: % 10d (0x%08x)\n", state.registers[i], state.registers[i]);
-    } else if (i != 14 && i != 13){
-      printf("$%-3d: % 10d (0x%08x)\n", i, state.registers[i], state.registers[i]);
+      printf("CPSR:");
+    } else if (i == 14 || i == 13){
+      continue;
+    } else {
+      printf("$%-3d:", i);
+    } 
+    if ((int) state.registers[i] < 0){
+      printf(" % 10d (0x%08x)\n", state.registers[i], state.registers[i]);
+    } else {
+      printf("%11d (0x%08x)\n", state.registers[i], state.registers[i]);
     }
   }
   printf("Non-zero memory:\n");
@@ -96,12 +108,14 @@ void pprint_state_t(state_t state) {
 }
 
 word get_word(byte *memory, int n){
-  //printf("%x\n", n);
-  //printf("%x\n", memory[n]);
-  //printf("%x\n", memory[n +1]);
-  //printf("%x\n", memory[n + 2]);
+  /*
+  printf("%x\n", n);
+  printf("%x\n", memory[n]);
+  printf("%x\n", memory[n +1]);
+  printf("%x\n", memory[n + 2]);
 
-  //printf("%x\n", memory[n + 3]);
+  printf("%x\n", memory[n + 3]);
+  */
   return (memory[n + 3] << 24) |
          (memory[n + 2] << 16) |
          (memory[n + 1] << 8)  |
@@ -117,8 +131,8 @@ word get_word_raw(byte *memory, int n){
 }
 
 void set_word(byte *memory, int addr, word w) {
-  memory[addr] = (byte) w & 0xF;
-  memory[addr + 1] = (byte) (w >> 4) & 0xF;
-  memory[addr + 2] = (byte) (w >> 8) & 0xF;
-  memory[addr + 3] = (byte) (w >> 12) & 0xF;
+  memory[addr] = (byte) w & 0xFF;
+  memory[addr + 1] = (byte) (w >> 8) & 0xFF;
+  memory[addr + 2] = (byte) (w >> 16) & 0xFF;
+  memory[addr + 3] = (byte) (w >> 24) & 0xFF;
 }
