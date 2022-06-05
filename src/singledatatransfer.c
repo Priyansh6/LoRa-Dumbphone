@@ -15,7 +15,14 @@ word imediate_offset(byte i, uint16_t offset_raw, state_t *state){
 void storeWord(word w, state_t *state, int dest){
   
   byte *bytes = (byte *) &w;
-  
+ 
+  printf("dest :%x\n", dest);
+  printf("w :%x\n", w);
+  printf("bytes[0] :%x\n", bytes[0]);
+  printf("bytes[1] :%x\n", bytes[1]);
+  printf("bytes[2] :%x\n", bytes[2]);
+  printf("bytes[3] :%x\n", bytes[3]);
+ 
   state->memory[dest]     = bytes[0];
   state->memory[dest + 1] = bytes[1];
   state->memory[dest + 2] = bytes[2];
@@ -30,10 +37,14 @@ void execute_SDT(instruction_t inst, state_t *state){
 
   word offset = imediate_offset(inst.contents.sdt.i, inst.contents.sdt.offset, state);
   
-  int mult = (inst.contents.sdt.u == 0)? -1 : 1;
+  int multi = (inst.contents.sdt.u == 0)? -1 : 1;
    
-  int comp = rn + mult * offset;
-
+  int comp = rn;
+  
+  if (inst.contents.sdt.p) {
+    comp += multi * offset;
+  }
+  
   //printf("%d\n", comp);
 
   if (inst.contents.sdt.l == 0){
@@ -43,7 +54,7 @@ void execute_SDT(instruction_t inst, state_t *state){
   }
 
   if (inst.contents.sdt.p == 0 ){
-    state->registers[inst.contents.sdt.rn] = comp;
+    state->registers[inst.contents.sdt.rn] = comp + multi * offset;
   }
 
 }

@@ -13,7 +13,7 @@
 
 #define DEBUG_STATEMENT(x) if(is_debug) {x;};
 
-bool is_debug = false;
+bool is_debug = true;
 
 enum InstructionType determine_instruction_type(word w) {
   if (w == 0) {
@@ -87,14 +87,14 @@ bool cond_true(byte cond, word cpsr) {
   return res;
 }
 
-void execute(instruction_t instruction, state_t *s) {
+int execute(instruction_t instruction, state_t *s) {
   DEBUG_STATEMENT(pprint_instruction_t(instruction)); 
   if (instruction.type == T) {
     execute_T(instruction, s);
   }
 
   if (!cond_true(instruction.cond, s->registers[CPSR])) {
-    return;
+    return 1;
   }
   switch (instruction.type) {
     case DP: execute_DP(instruction, s); break;
@@ -105,6 +105,8 @@ void execute(instruction_t instruction, state_t *s) {
     default:
       pprint_instruction_t(instruction); 
   }
+  
+  return 0;
 }
 
 void init_emulator(state_t *s) {
@@ -157,6 +159,7 @@ int main(int argc, char **argv) {
   word fetch_tmp;
   instruction_t decode; 
   instruction_t decode_tmp;
+  int status = 0;
 
   bool has_fetched = false;
   bool has_decoded = false;
@@ -173,13 +176,18 @@ int main(int argc, char **argv) {
     if (has_fetched) {
       decode = decode_instruction(fetch_tmp);
       if (has_decoded) {
-        execute(decode_tmp, &s);
+        status = execute(decode_tmp, &s);
       }
       has_decoded = true;
     }
     has_fetched = true;
-    s.registers[PC] += 4;
-    iter++;
+    if (decode_tmp.type == B && status == 0){
+      has_decoded = false;
+      has_fetched = false;
+    } else {
+      s.registers[PC] += 4;
+      iter++;
+    }
     DEBUG_STATEMENT(printf("\n\n"));
   }
   
