@@ -11,6 +11,10 @@
 #include "terminate.h"
 #include "utilities.h"
 
+#define DEBUG_STATEMENT(x) if(is_debug) {x;};
+
+bool is_debug = false;
+
 enum InstructionType determine_instruction_type(word w) {
   if (w == 0) {
     return T;
@@ -84,7 +88,7 @@ bool cond_true(byte cond, word cpsr) {
 }
 
 void execute(instruction_t instruction, state_t *s) {
-  pprint_instruction_t(instruction); 
+  DEBUG_STATEMENT(pprint_instruction_t(instruction)); 
   if (instruction.type == T) {
     execute_T(instruction, s);
   }
@@ -127,7 +131,7 @@ void load_binary(state_t *s, FILE *fp) {
 
 int main(int argc, char **argv) {
   
-  printf("Trying to open file %s\n", argv[1]);
+  DEBUG_STATEMENT(printf("Trying to open file %s\n", argv[1]));
 
   FILE *fp;
   fp = fopen(argv[1], "rb");
@@ -141,13 +145,13 @@ int main(int argc, char **argv) {
   load_binary(&s, fp);
   
 
-  int i = 0;
+  DEBUG_STATEMENT(int i = 0;
   byte curr = s.memory[i]; 
   while (curr != 0) {
     printf("s.memory[%d]: %x %p\n", i, curr, (void *) &curr);
     curr = s.memory[i];
     i++;
-  }
+  });
 
   word fetch;
   word fetch_tmp;
@@ -159,12 +163,12 @@ int main(int argc, char **argv) {
   
   int iter = 0;
   while (true) {
-    printf("Iter: %d\n", iter);
-    pprint_state_t(s);
-    printf("PC: %d\n", s.registers[PC]);
+    DEBUG_STATEMENT(printf("Iter: %d\n", iter));
+    DEBUG_STATEMENT(pprint_state_t(s));
+    DEBUG_STATEMENT(printf("PC: %d\n", s.registers[PC]));
     fetch_tmp = fetch;
     fetch = get_word_raw(s.memory, s.registers[PC]);
-    printf("Fetched: %x\n", fetch);
+    DEBUG_STATEMENT(printf("Fetched: %x\n", fetch));
     decode_tmp = decode; 
     if (has_fetched) {
       decode = decode_instruction(fetch_tmp);
@@ -176,7 +180,7 @@ int main(int argc, char **argv) {
     has_fetched = true;
     s.registers[PC] += 4;
     iter++;
-    printf("\n\n");
+    DEBUG_STATEMENT(printf("\n\n"));
   }
   
   return EXIT_SUCCESS;

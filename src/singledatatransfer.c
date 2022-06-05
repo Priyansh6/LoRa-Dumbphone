@@ -1,4 +1,5 @@
 #include "utilities.h"
+#include <stdio.h>
 #include <stdint.h>
 
 word imediate_offset(byte i, uint16_t offset_raw, state_t *state){
