@@ -19,16 +19,16 @@ enum InstructionType determine_instruction_type(word w) {
   if (w == 0) {
     return T;
   } 
-  if (w >> 26 & 1) {
+  if BIT_MASK(w, 26, 1) {
     return SDT;
   }
-  if (w >> 27 & 1) {
+  if BIT_MASK(w, 27, 1) {
     return B;
   }
-  if (w >> 25 & 1) {
+  if BIT_MASK(w, 25, 1) {
     return DP;
   }
-  if ((w >> 4 & 0xF) == 9) {
+  if (BIT_MASK(w, 4, 0xF) == 9) { // 9 is the mask for distinguishing between a data processing and multiply instruction
     return M;
   }
   return DP;
@@ -38,29 +38,29 @@ instruction_t decode_instruction(word w) {
   enum InstructionType it = determine_instruction_type(w);  
   instruction_t instruction;
   instruction.type = it;
-  instruction.cond = (w >> 28) & 0xF;
+  instruction.cond = BIT_MASK(w, 28, 0xF);
    
   if (it == DP) {
-    instruction.contents.dp.i = (w >> 25) & 1;
-    instruction.contents.dp.opcode = (w >> 21) & 0xF;
-    instruction.contents.dp.s = (w >> 20) & 1;
-    instruction.contents.dp.rn = (w >> 16) & 0xF; 
-    instruction.contents.dp.rd = (w >> 12) & 0xF;
-    instruction.contents.dp.operand2 = w & 0xFFF;  
+    instruction.contents.dp.i = BIT_MASK(w, 25, 1);
+    instruction.contents.dp.opcode = BIT_MASK(w, 21, 0xF);
+    instruction.contents.dp.s = BIT_MASK(w, 20, 1);
+    instruction.contents.dp.rn = BIT_MASK(w, 16, 0xF); 
+    instruction.contents.dp.rd = BIT_MASK(w, 12, 0xF);
+    instruction.contents.dp.operand2 = w & 0xFFF;
   } else if (it == M) {
-    instruction.contents.m.a = (w >> 21) & 1;
-    instruction.contents.m.s = (w >> 20) & 1; 
-    instruction.contents.m.rd = (w >> 16) & 0xF;
-    instruction.contents.m.rn = (w >> 12) & 0xF;
-    instruction.contents.m.rs = (w >> 8) & 0xF;
+    instruction.contents.m.a = BIT_MASK(w, 21, 1);
+    instruction.contents.m.s = BIT_MASK(w, 20, 1); 
+    instruction.contents.m.rd = BIT_MASK(w, 16, 0xF);
+    instruction.contents.m.rn = BIT_MASK(w, 12, 0xF);
+    instruction.contents.m.rs = BIT_MASK(w, 8, 0xF);
     instruction.contents.m.rm = w & 0xF;
   } else if (it == SDT) {
-    instruction.contents.sdt.i = (w >> 25) & 1; 
-    instruction.contents.sdt.p = (w >> 24) & 1;
-    instruction.contents.sdt.u = (w >> 23) & 1;
-    instruction.contents.sdt.l = (w >> 20) & 1;
-    instruction.contents.sdt.rn = (w >> 16) & 0xF;
-    instruction.contents.sdt.rd = (w >> 12) & 0xF;
+    instruction.contents.sdt.i = BIT_MASK(w, 25, 1); 
+    instruction.contents.sdt.p = BIT_MASK(w, 24, 1);
+    instruction.contents.sdt.u = BIT_MASK(w, 23, 1);
+    instruction.contents.sdt.l = BIT_MASK(w, 20, 1);
+    instruction.contents.sdt.rn = BIT_MASK(w, 16, 0xF);
+    instruction.contents.sdt.rd = BIT_MASK(w, 12, 0xF);
     instruction.contents.sdt.offset = w & 0xFFF;
   } else if (it == B) {
     instruction.contents.b.offset = w & 0xFFFFFF;
@@ -70,9 +70,9 @@ instruction_t decode_instruction(word w) {
 }
 
 bool cond_true(byte cond, word cpsr) {
-  byte n = (cpsr >> 31) & 1;
-  byte z = (cpsr >> 30) & 1;
-  byte v = (cpsr >> 28) & 1;
+  byte n = BIT_MASK(cpsr, 31, 1);
+  byte z = BIT_MASK(cpsr, 30, 1);
+  byte v = BIT_MASK(cpsr, 28, 1);
   bool res;
   switch (cond) {
     case 0: res = z; break;
@@ -81,7 +81,6 @@ bool cond_true(byte cond, word cpsr) {
     case 11: res = n != v; break;
     case 12: res = !z && (n == v); break;
     case 13: res = z || (n != v); break;
-    case 14: 
     default: res = true;
   }
   return res;
@@ -89,6 +88,7 @@ bool cond_true(byte cond, word cpsr) {
 
 int execute(instruction_t instruction, state_t *s) {
   DEBUG_STATEMENT(pprint_instruction_t(instruction)); 
+
   if (instruction.type == T) {
     execute_T(instruction, s);
   }
@@ -96,39 +96,31 @@ int execute(instruction_t instruction, state_t *s) {
   if (!cond_true(instruction.cond, s->registers[CPSR])) {
     return 1;
   }
+
   switch (instruction.type) {
     case DP: execute_DP(instruction, s); break;
     case M: execute_M(instruction, s); break;
     case SDT: execute_SDT(instruction, s); break;
     case B: execute_B(instruction, s); break;
     case T: execute_T(instruction, s); break;
-    default:
-      pprint_instruction_t(instruction); 
   }
   
   return 0;
 }
 
-void init_emulator(state_t *s) {
-  memset(s->memory, 0, MEMSIZE * sizeof(byte));
-  memset(s->registers, 0, NOREGS * sizeof(word));
+state_t *init_state() {
+  state_t *s = (state_t *) calloc(1, sizeof(state_t));
+  return s;
+  //memset(s->memory, 0, MEMSIZE * sizeof(byte));
+  //memset(s->registers, 0, NOREGS * sizeof(word));
 }
 
-void swap_endian(word *x) {
-  *x = (*x>>24) |
-       ((*x<<8) & 0x00FF0000) |
-       ((*x>>8) & 0x0000FF00) |
-       (*x<<24);
+void free_emulator(state_t *s) {
+  free(s);
 }
 
 void load_binary(state_t *s, FILE *fp) {
   fread(&s->memory, sizeof(byte), MEMSIZE, fp);
-  
-  //word *words = (word *) s->memory;
-
-  /*for (int i = 0; i < MEMSIZE / sizeof(word); i++) {
-    swap_endian(&words[i]);
-  }*/
 }
 
 int main(int argc, char **argv) {
@@ -142,23 +134,26 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE); 
   }
 
-  state_t s;
-  init_emulator(&s);
-  load_binary(&s, fp);
+  state_t *s = init_state();
+  load_binary(s, fp);
   
 
-  DEBUG_STATEMENT(int i = 0;
-  byte curr = s.memory[i]; 
-  while (get_word(s.memory, i) != 0) {
-    printf("s.memory[%d]: %x %p\n", i, curr, (void *) &curr);
-    i++; 
-    curr = s.memory[i];
-  });
+  DEBUG_STATEMENT(
+    int i = 0;
+    byte curr = s->memory[i]; 
+    while (get_word(s->memory, i)) {
+      printf("s.memory[%d]: %x %p\n", i, curr, (void *) &curr);
+      i++; 
+      curr = s->memory[i];
+    }
+  );
 
   word fetch;
   word fetch_tmp;
+
   instruction_t decode; 
   instruction_t decode_tmp;
+
   int status = 0;
 
   bool has_fetched = false;
@@ -166,31 +161,34 @@ int main(int argc, char **argv) {
   
   int iter = 0;
   while (true) {
-    DEBUG_STATEMENT(printf("Iter: %d\n", iter));
-    DEBUG_STATEMENT(pprint_state_t(s));
-    DEBUG_STATEMENT(printf("PC: %d\n", s.registers[PC]));
+    DEBUG_STATEMENT(
+      printf("Iter: %d\n", iter);
+      pprint_state_t(*s);
+      printf("PC: %d\n", s->registers[PC]);
+    );
+
     fetch_tmp = fetch;
-    fetch = get_word(s.memory, s.registers[PC]);
+    fetch = get_word(s->memory, s->registers[PC]);
+
     DEBUG_STATEMENT(printf("Fetched: %x\n", fetch));
+
     decode_tmp = decode; 
     if (has_fetched) {
       decode = decode_instruction(fetch_tmp);
       if (has_decoded) {
-        status = execute(decode_tmp, &s);
+        status = execute(decode_tmp, s);
       }
       has_decoded = true;
     }
     has_fetched = true;
-    if (decode_tmp.type == B && status == 0){
+    if (decode_tmp.type == B && status == 0) {
       has_decoded = false;
       has_fetched = false;
     } else {
-      s.registers[PC] += 4;
+      s->registers[PC] += 4;
       iter++;
     }
     DEBUG_STATEMENT(printf("\n\n"));
   }
-  
   return EXIT_SUCCESS;
-
 }

@@ -2,12 +2,11 @@
 
 #include "utilities.h"
 
-
 word shifted_rm(uint16_t shift_rm, state_t* s) {
   word rm = s->registers[shift_rm & 0xF];
 
-  byte shift = (shift_rm >> 4) & 0xFF;
-  byte shift_type = (shift >> 1) & 0x3;
+  byte shift = BIT_MASK(shift_rm, 4, 0xFF);
+  byte shift_type = BIT_MASK(shift, 1, 3);
 
   word shift_amount;
   if (shift & 1) {
@@ -15,26 +14,17 @@ word shifted_rm(uint16_t shift_rm, state_t* s) {
   } else {
     shift_amount = shift >> 3;
   }
-  /*
-  printf("shift_type %x\n", shift_type);
-  printf("shift_amount %x\n", shift_amount);
-  printf("shift %x\n", shift);
-  printf("rm %x\n", rm);
-  */
-  /* Logical shift left */
-  if (shift_type == 0) {
-    return rm << shift_amount;
-  }  
-  /* Logical shift right */
-  if (shift_type == 1) {
-    return rm >> shift_amount;
+
+  switch (shift_type) {
+    case 0:
+      return rm << shift_amount;
+    case 1:
+      return rm >> shift_amount;
+    case 2:
+      return (int32_t) rm >> shift_amount;
+    default:
+      return rotate_shift_right(rm, shift_amount);
   }
-  /* Arithmetic shift right */
-  if (shift_type == 2) {
-    return (int32_t) rm >> shift_amount;
-  }
-  /* Rotate shift right */
-  return rotate_shift_right(rm, shift_amount);
 }
 
 word rotate_shift_right(word x, word shift_amount) {
@@ -102,20 +92,12 @@ void pprint_state_t(state_t state) {
   printf("Non-zero memory:\n");
   for (int i = 0; i < MEMSIZE; i += 4) {
     if (get_word_raw(state.memory, i) != 0) {
-      printf("0x%08x: 0x%08x\n", i, get_word_raw(state.memory, i));//state.memory[i]);
+      printf("0x%08x: 0x%08x\n", i, get_word_raw(state.memory, i));
     }
   }
 }
 
 word get_word(byte *memory, int n){
-  /*
-  printf("%x\n", n);
-  printf("%x\n", memory[n]);
-  printf("%x\n", memory[n +1]);
-  printf("%x\n", memory[n + 2]);
-
-  printf("%x\n", memory[n + 3]);
-  */
   return (memory[n + 3] << 24) |
          (memory[n + 2] << 16) |
          (memory[n + 1] << 8)  |
@@ -127,12 +109,11 @@ word get_word_raw(byte *memory, int n){
          (memory[n + 1] << 16) |
          (memory[n + 2] << 8)  |
          (memory[n + 3]);
-
 }
 
 void set_word(byte *memory, int addr, word w) {
-  memory[addr] = (byte) w & 0xFF;
-  memory[addr + 1] = (byte) (w >> 8) & 0xFF;
-  memory[addr + 2] = (byte) (w >> 16) & 0xFF;
-  memory[addr + 3] = (byte) (w >> 24) & 0xFF;
+  memory[addr] = (byte) w;
+  memory[addr + 1] = (byte) (w >> 8);
+  memory[addr + 2] = (byte) (w >> 16);
+  memory[addr + 3] = (byte) (w >> 24);
 }

@@ -11,6 +11,8 @@
 #define GPIO_START 0x20200000
 #define GPIO_END 0x2020002C
 
+#define BIT_MASK(x, shift, mask) ((x >> shift) & mask)
+
 #include <stdint.h>
 
 typedef uint8_t byte;
@@ -54,7 +56,6 @@ void pprint_instruction_t(instruction_t instruction);
 void pprint_state_t(state_t state);
 
 word get_word(byte *memory, int n);
-
 word get_word_raw(byte *memory, int n);
 
 void set_word(byte *memory, int addr, word w);

@@ -1,18 +1,15 @@
 #include <stdint.h>
-#include <stdbool.h>
 
-#include "utilities.h"
+#include "branch.h"
 
-void execute_B(instruction_t type, state_t* state) {
-  int32_t off = type.contents.b.offset;
+void execute_B(instruction_t instruction, state_t *s) {
+  int32_t off = instruction.contents.b.offset;
 
-  bool sign = (off >> 23);
-
-  if (sign) {
+  if (off >> 23) {
     off |= 0xFF000000;
   }
 
-  off = (off << 2);
+  off <<= 2;
 
-  state->registers[15] += off;
+  s->registers[PC] += off;
 }

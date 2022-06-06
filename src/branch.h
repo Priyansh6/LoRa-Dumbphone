@@ -3,6 +3,6 @@
 
 #include "utilities.h"
 
-void execute_B(instruction_t, state_t*);
+void execute_B(instruction_t instruction, state_t *s);
 
 #endif

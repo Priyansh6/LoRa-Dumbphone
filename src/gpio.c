@@ -1,15 +1,13 @@
-#include "utilities.h"
-
 #include <stdio.h>
 
-void clear_pin(state_t *s, word w) {
-  s->gpio_clear = w;
-  printf("PIN OFF\n");
-}
+#include "gpio.h"
 
-void set_pin(state_t *s, word w) {
-  s->gpio_set = w;
-  printf("PIN ON\n");
+void pprint_pin_state(word w, const char *msg) {
+  for (int i = 0; i < 32; i++) {
+    if (BIT_MASK(w, i, 1)) {
+      printf("%s\n", msg);
+    }
+  }
 }
 
 void pprint_access_message(word addr) {
@@ -26,8 +24,17 @@ void pprint_access_message(word addr) {
   }
 }
 
+void clear_pin(state_t *s, word w) {
+  s->gpio_clear = w;
+  pprint_pin_state(w, "PIN OFF");
+}
+
+void set_pin(state_t *s, word w) {
+  s->gpio_set = w;
+  pprint_pin_state(w, "PIN ON");
+}
+
 void configure_pin(state_t *s, word addr, word w) {
   set_word(s->gpio_memory, addr - GPIO_START, w);
   pprint_access_message(addr);
 }
-

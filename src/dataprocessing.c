@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "utilities.h"
+#include "dataprocessing.h"
 
 void execute_DP(instruction_t instruction, state_t* s) {
   word o1 = s->registers[instruction.contents.dp.rn];
@@ -12,22 +12,26 @@ void execute_DP(instruction_t instruction, state_t* s) {
   } else {
     o2 = shifted_rm(instruction.contents.dp.operand2, s);
   }
-
+ 
+  bool write = true;
   word result;
-  switch(instruction.contents.dp.opcode) {
+  switch (instruction.contents.dp.opcode) {
     /* AND */
-    case 0:
     case 8:
+      write = false;
+    case 0:
       result = o1 & o2;
       break;
     /* EOR */
-    case 1:
     case 9:
+      write = false;
+    case 1:
       result = o1 ^ o2;
       break;
     /* SUBTRACT */
-    case 2:
     case 10:
+      write = false;
+    case 2:
       result = o1 - o2;
       break;
     /* REVERSE SUBTRACT */
@@ -45,34 +49,29 @@ void execute_DP(instruction_t instruction, state_t* s) {
     /* MOVE */
     case 13:
       result = o2;
-      break;
   } 
 
-  switch(instruction.contents.dp.opcode) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 12:
-    case 13:
+  if (write) {
     s->registers[instruction.contents.dp.rd] = result;
   }
   
   if (instruction.contents.dp.s) {
     word c_flag = 0;
-    switch(instruction.contents.dp.opcode) {
+    switch (instruction.contents.dp.opcode) {
+      /* SUBTRACT */
       case 2:
       case 10:
         if (result <= o1) {
           c_flag = 0x20000000;
         }
         break;
+      /* REVERSE SUBTRACT */
       case 3:
         if (result <= o2) {
           c_flag = 0x20000000;
         }
         break;
+      /* ADD */
       case 4:
         if (result < o1 || result < o2) {
           c_flag = 0x20000000;
@@ -82,6 +81,6 @@ void execute_DP(instruction_t instruction, state_t* s) {
     word n_flag = result >> (sizeof(word) * 8 - 1) ? 0x80000000 : 0;
     word final_flag = c_flag | z_flag | n_flag;
 
-    s->registers[16] = (s->registers[16] & 0x1FFFFFFF) | final_flag;
+    s->registers[CPSR] = (s->registers[CPSR] & 0x1FFFFFFF) | final_flag;
   }
 }
