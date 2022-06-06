@@ -3,6 +3,11 @@
 
 #include "utilities.h"
 
-void execute_M(instruction_t, state_t*);
+/*
+Usage:
+execute_M(instruction_t instruction, state_t *s);
+Executes a multiply instruction. Modifies the CPSR register depending on whether the multiply overflows. 
+*/
+void execute_M(instruction_t instruction, state_t *s);
 
 #endif
