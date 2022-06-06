@@ -65,12 +65,44 @@ Computes the value of x rotated right by shift_amount bits
 */
 word rotate_shift_right(word x, word shift_amount);
 
+/*
+Usage:
+pprint_instruction_t(instruction_t instruction);
+
+Pretty prints the instruction type with all fields. Useful for debugging.
+*/
 void pprint_instruction_t(instruction_t instruction);
+
+/*
+Usage:
+pprint_state_t(state_t s);
+
+Pretty prints the state. Outputs all registers and non-zero memory.
+*/
 void pprint_state_t(state_t s);
 
+/*
+Usage:
+get_word(byte *memory, int n);
+
+Gets a word from memory[n] and puts in in big endian form for processing.
+*/
 word get_word(byte *memory, int n);
+
+/*
+Usage:
+get_word_raw(byte *memory, int n);
+
+Gets a word from memory[n] as it is laid out in memory.
+*/
 word get_word_raw(byte *memory, int n);
 
+/*
+Usage:
+set_word(byte *memory, int addr, word w);
+
+Sets the next four bytes in memory from addr to the four bytes comprising word.
+*/
 void set_word(byte *memory, int addr, word w);
 
 #endif
