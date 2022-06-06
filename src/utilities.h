@@ -49,11 +49,24 @@ typedef struct instruction {
   } contents;
 } instruction_t;
 
-word shifted_rm(uint16_t, state_t*);
-word rotate_shift_right(word, word);
+/*
+Usage:
+word shifted_rm(uint16_t shift_rm, state_t* s);
+
+Computes shifted register based on operand2 and offset fields in data processing and single data transfer instructions respectively
+*/
+word shifted_rm(uint16_t shift_rm, state_t* s);
+
+/*
+Usage:
+word rotate_shift_right(word x, word shift_amount);
+
+Computes the value of x rotated right by shift_amount bits
+*/
+word rotate_shift_right(word x, word shift_amount);
 
 void pprint_instruction_t(instruction_t instruction);
-void pprint_state_t(state_t state);
+void pprint_state_t(state_t s);
 
 word get_word(byte *memory, int n);
 word get_word_raw(byte *memory, int n);
