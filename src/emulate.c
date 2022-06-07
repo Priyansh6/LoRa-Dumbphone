@@ -110,13 +110,13 @@ int execute(instruction_t instruction, state_t *s) {
 
 state_t *init_state() {
   state_t *s = (state_t *) calloc(1, sizeof(state_t));
+  if (s == NULL) {
+    perror("Couldn't allocate memory for state!");
+    exit(EXIT_FAILURE);
+  }
   return s;
   //memset(s->memory, 0, MEMSIZE * sizeof(byte));
   //memset(s->registers, 0, NOREGS * sizeof(word));
-}
-
-void free_emulator(state_t *s) {
-  free(s);
 }
 
 void load_binary(state_t *s, FILE *fp) {
@@ -136,6 +136,8 @@ int main(int argc, char **argv) {
 
   state_t *s = init_state();
   load_binary(s, fp);
+
+  fclose(fp);
   
 
   DEBUG_STATEMENT(
