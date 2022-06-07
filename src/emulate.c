@@ -4,11 +4,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "dataprocessing.h"
-#include "multiply.h"
-#include "singledatatransfer.h"
-#include "branch.h"
-#include "terminate.h"
+#include "emulator/dataprocessing.h"
+#include "emulator/multiply.h"
+#include "emulator/singledatatransfer.h"
+#include "emulator/branch.h"
+#include "emulator/terminate.h"
 #include "utilities.h"
 
 #define DEBUG_STATEMENT(x) if(is_debug) {x;};

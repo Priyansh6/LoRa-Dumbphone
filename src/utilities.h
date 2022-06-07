@@ -50,31 +50,40 @@ typedef struct instruction {
   } contents;
 } instruction_t;
 
-/*
+enum DPType { COMP, MOV, NCOMP };
+enum MType { SYN, ACCSYN };
+
+enum InstructionFormat {DP_COMP_F, DP_MOV_F, DP_NCOMP_F, M_F, MA_F, SDT_F, B_F, ANDEQ_F, LSL_F};
+
 typedef struct token {
-  enum InstructionType type;
-  union contents_u {
-    struct dp_s { 
-      
-      union {
-        
-
-      } 
-    } dp;  
-    struct m_s { 
-      byte a, s, rd, rn, rs, rm; 
-    } m;  
-    struct sdt_s { 
-      byte i, p, u, l, rn, rd; 
-      uint16_t offset; 
-    } sdt;  
-    struct b_s { 
-      word offset; 
-    } b;  
-  } contents;
+  enum InstructionFormat format;
+  union contents_f_u {
+    struct dp_comp_f_s {
+      char* opcode, rd, rn, operand2;
+    } dp_comp_f;
+    struct dp_mov_f_s {
+      char* rd, operand2;
+    } dp_mov_f;
+    struct dp_ncomp_f_s {
+      char* opcode, rn, operand2;
+    } dp_ncomp_f;
+    struct m_f_s {
+      char* rd, rn, rs;
+    } m_f;
+    struct ma_f_s {
+      char* rd, rm, rs, rn; 
+    } ma_f;
+    struct sdt_f_s {
+      char* expr, rd, addr;
+    } sdt_f;
+    struct b_f_s {
+      char* offset;
+    } b_f;
+    struct lsl_f_s {
+      char* rn, expr;
+    } lsl_f;
+  } contents_f;
 } token_t;
-*/
-
 
 /*
 Usage:

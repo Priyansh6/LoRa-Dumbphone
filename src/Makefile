@@ -9,24 +9,13 @@ all: assemble emulate
 
 assemble: assemble.o
 
-emulate: emulate.o dataprocessing.o multiply.o singledatatransfer.o branch.o terminate.o utilities.o gpio.o
-	gcc emulate.o dataprocessing.o multiply.o singledatatransfer.o branch.o terminate.o utilities.o gpio.o -o emulate
+emulate: emulate.o utilities.o 
+	$(MAKE) -C emulator
+	gcc emulate.o emulator/dataprocessing.o emulator/multiply.o emulator/singledatatransfer.o emulator/branch.o emulator/terminate.o utilities.o emulator/gpio.o -o emulate
 
 emulate.o: emulate.c
 
-dataprocessing.o: dataprocessing.c
-
-multiply.o: multiply.c
-
-singledatatransfer.o: singledatatransfer.c 
-
-branch.o: branch.c 
-
-terminate.o: terminate.c
-
 utilities.o: utilities.c
-
-gpio.o: gpio.c
 
 clean:
 	rm -f $(wildcard *.o)
