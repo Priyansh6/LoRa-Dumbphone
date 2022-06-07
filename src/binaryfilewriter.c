@@ -5,12 +5,10 @@
 #include "utilities.h"
 
 word endian_swap(word w) {
-
   return (w & 0xFF)              << 24 | 
          (BIT_MASK(w, 8, 0xFF))  << 16 | 
          (BIT_MASK(w, 16, 0xFF)) << 8  |
          (BIT_MASK(w, 24, 0xFF));
-
 }
 
 
@@ -24,32 +22,10 @@ int write_binary(const char *fname, const word *buff, size_t no_words) {
   }
   
   word swapped;
-
   for (int i = 0; i < no_words; i++){
     swapped = endian_swap(buff[i]);
-    fwrite(&swapped , sizeof(word), 1, fp);
+    fwrite(&swapped, sizeof(word), 1, fp);
   }
 
   fclose(fp);
 }
-
-
-
-int main(void){
-  
-  char *fname = "test"; 
-  
-  word* numbers = malloc(sizeof(word) * 40);
-
-  for (int i = 0 ; i < 40; i++){
-    numbers[i] = i;
-  }
-
-  write_binary(fname, numbers, 40);
-
-  free(numbers);
-
-  return 0; 
-
-}
-
