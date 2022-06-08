@@ -13,6 +13,7 @@
 
 #define BIT_MASK(x, shift, mask) ((x >> shift) & mask)
 
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef uint8_t byte;
@@ -86,10 +87,17 @@ typedef struct token {
 } token_t;
 
 /*
+Usage: 
+bool isnumber(char *str);
+
+Returns whether a string is a number in the provided base
+Works up to base 36
+*/
+bool isnumber(char *str, byte base);
+
+/*
 Usage:
 word shifted_rm(uint16_t shift_rm, state_t* s);
-<<<<<<< HEAD
-=======
 
 Computes shifted register based on operand2 and offset fields in data processing and single data transfer instructions respectively
 */
