@@ -1,3 +1,5 @@
+#include "../utilities.h"
+
 #ifndef MULTIPLY_H 
 #define MULTIPLY_H
 
