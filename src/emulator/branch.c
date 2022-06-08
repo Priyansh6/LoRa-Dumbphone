@@ -2,8 +2,10 @@
 
 #include "branch.h"
 
+#define INSB instruction.contents.b
+
 void execute_B(instruction_t instruction, state_t *s) {
-  int32_t off = instruction.contents.b.offset;
+  int32_t off = INSB.offset;
 
   if (off >> 23) {
     off |= 0xFF000000;
