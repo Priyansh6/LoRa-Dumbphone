@@ -4,20 +4,22 @@
 #include "gpio.h"
 #include "singledatatransfer.h"
 
+#define INSSDT instruction.contents.sdt
+
 void execute_SDT(instruction_t instruction, state_t *s) {
   
-  word rn = s->registers[instruction.contents.sdt.rn]; 
-  word rd = s->registers[instruction.contents.sdt.rd];
+  word rn = s->registers[INSSDT.rn]; 
+  word rd = s->registers[INSSDT.rd];
   
-  word offset = instruction.contents.sdt.offset;
+  word offset = INSSDT.offset;
 
-  offset = instruction.contents.sdt.i ? shifted_rm(offset, s) : offset;
+  offset = INSSDT.i ? shifted_rm(offset, s) : offset;
   
-  int multi = (instruction.contents.sdt.u == 0)? -1 : 1;
+  int multi = (INSSDT.u == 0)? -1 : 1;
    
   word addr = rn;
   
-  if (instruction.contents.sdt.p) {
+  if (INSSDT.p) {
     addr += multi * offset;
   }
  
@@ -26,7 +28,7 @@ void execute_SDT(instruction_t instruction, state_t *s) {
     return;
   }
  
-  if (instruction.contents.sdt.l == 0) {
+  if (INSSDT.l == 0) {
     if (addr >= GPIO_START) {
       switch (addr) {
         case GPIO_CLEAR:
@@ -43,14 +45,14 @@ void execute_SDT(instruction_t instruction, state_t *s) {
     }
   } else {
     if (addr >= GPIO_START) {
-      s->registers[instruction.contents.sdt.rd] = addr;
+      s->registers[INSSDT.rd] = addr;
       pprint_access_message(addr);
     } else {
-      s->registers[instruction.contents.sdt.rd] = get_word(s->memory, addr);
+      s->registers[INSSDT.rd] = get_word(s->memory, addr);
     }
   }
 
-  if (instruction.contents.sdt.p == 0) {
-    s->registers[instruction.contents.sdt.rn] = addr + multi * offset;
+  if (INSSDT.p == 0) {
+    s->registers[INSSDT.rn] = addr + multi * offset;
   }
 }

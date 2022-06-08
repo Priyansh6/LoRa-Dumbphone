@@ -3,19 +3,20 @@
 
 #include "dataprocessing.h"
 
+#define INSDP instruction.contents.dp
+
 void execute_DP(instruction_t instruction, state_t* s) {
-  word o1 = s->registers[instruction.contents.dp.rn];
+  word o1 = s->registers[INSDP.rn];
   word o2;
-  if (instruction.contents.dp.i) {
-    o2 = rotate_shift_right((word) instruction.contents.dp.operand2 & 0xFF, 
-        (word) (instruction.contents.dp.operand2 >> 8) * 2);
+  if (INSDP.i) {
+    o2 = rotate_shift_right(INSDP.operand2 & 0xFF, BIT_MASK(INSDP.operand2, 8, 0xF) * 2);
   } else {
-    o2 = shifted_rm(instruction.contents.dp.operand2, s);
+    o2 = shifted_rm(INSDP.operand2, s);
   }
  
   bool write = true;
   word result;
-  switch (instruction.contents.dp.opcode) {
+  switch (INSDP.opcode) {
     /* AND */
     case 8:
       write = false;
@@ -52,12 +53,12 @@ void execute_DP(instruction_t instruction, state_t* s) {
   } 
 
   if (write) {
-    s->registers[instruction.contents.dp.rd] = result;
+    s->registers[INSDP.rd] = result;
   }
   
-  if (instruction.contents.dp.s) {
+  if (INSDP.s) {
     word c_flag = 0;
-    switch (instruction.contents.dp.opcode) {
+    switch (INSDP.opcode) {
       /* SUBTRACT */
       case 2:
       case 10:

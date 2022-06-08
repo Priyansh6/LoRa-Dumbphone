@@ -1,7 +1,7 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
-#define MEMSIZE 64 * 1024
+#define MEMSIZE (64 * 1024)
 #define NOREGS 17
 #define PC 15
 #define CPSR 16
