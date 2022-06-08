@@ -73,8 +73,12 @@ word assemble_dp(token_t token) {
 
   if (o2[0] != 'r') {
     word shift_rm = 0;
-    shift_rm |= strtoul(o2 + 1, NULL, 10);
+    char *rest;
+    shift_rm |= strtoul(o2 + 1, &rest, 10);
     result |= shift_rm;
+    if (strlen(rest)) {
+      rest += 2;
+    }
   } else {
     result |= (1 << 25); // Setting I bit
     result |= toimmediate(o2);

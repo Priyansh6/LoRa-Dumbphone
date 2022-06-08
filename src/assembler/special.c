@@ -22,13 +22,20 @@ word assemble_LSL(token_t t) {
   int total_len = 2 + start_len + 2 * rn_len + mid_len + expr_len;
 
   char *new_line = malloc(total_len + 1);
-  memcpy(new_line, start_line, start_len);
-  memcpy(new_line + start_len, LSL.rn, rn_len);
-  new_line[start_len + rn_len] = ',';
-  new_line[start_len + rn_len + 1] = ' ';
-  memcpy(new_line + 2 + start_len + rn_len, LSL.rn, rn_len);
-  memcpy(new_line + 2 + start_len + rn_len * 2, mid_line, mid_len);
-  memcpy(new_line + total_len - expr_len, LSL.expr, expr_len);
+  char *index = new_line;
+  memcpy(index, start_line, start_len);
+  index += start_len;
+  memcpy(index, LSL.rn, rn_len);
+  index += rn_len;
+  new_line[index - new_line] = ',';
+  index++;
+  new_line[index - new_line] = ' ';
+  index++
+  memcpy(index, LSL.rn, rn_len);
+  index += rn_len;
+  memcpy(index, mid_line, mid_len);
+  index += mid_len;
+  memcpy(index, LSL.expr, expr_len);
   new_line[total_len] = '\0';
 
   free(t.free_pointer);
