@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -9,7 +10,7 @@
 #define SET_RD(r) result |= (r << 12)
 #define COMP token.contents_f.dp_comp_f
 #define MOV token.contents_f.dp_mov_f
-#define NCOMP token.contents_f.dp_ncomp_fs
+#define NCOMP token.contents_f.dp_ncomp_f
 
 word assemble_dp(token_t token) {
   word result = 14 << 28; // Setting condition code to 14
@@ -64,6 +65,10 @@ word assemble_dp(token_t token) {
       result |= (1 << 20); // Setting S bit
 
       o2 = NCOMP.operand2;
+      break;
+    default:
+      printf("Illegal instruction type to assemble");
+      return 0;
   }  
 
   if (o2[0] != 'r') {
@@ -72,7 +77,7 @@ word assemble_dp(token_t token) {
     result |= shift_rm;
   } else {
     result |= (1 << 25); // Setting I bit
-    result |= toimmediate(o2)
+    result |= toimmediate(o2);
   }
 
   return result;
