@@ -4,18 +4,7 @@
 #define NUM_BUCKETS 100
 
 #include "../utilities.h"
-
-struct linked_list_node;
-
-typedef struct linked_list {
-  struct linked_list_node *head;
-} linked_list_t;
-
-typedef struct linked_list_node {
-  char *label;
-  address addr;
-  struct linked_list_node *next;  
-} linked_list_node_t; 
+#include "linkedlist.h"
 
 /*
 Usage:
@@ -33,4 +22,8 @@ struct symbol_table {
 };
 
 
+address get_label(symbol_table_t *st, const char *label); 
+void add_label(symbol_table_t *st, const char *label, address addr);
+
+void pprint_symbol_table(symbol_table_t st);
 #endif
