@@ -59,28 +59,28 @@ typedef struct token {
   enum InstructionFormat format;
   union contents_f_u {
     struct dp_comp_f_s {
-      char* opcode, rd, rn, operand2;
+      char *opcode, *rd, *rn, *operand2;
     } dp_comp_f;
     struct dp_mov_f_s {
-      char* rd, operand2;
+      char *rd, *operand2;
     } dp_mov_f;
     struct dp_ncomp_f_s {
-      char* opcode, rn, operand2;
+      char *opcode, *rn, *operand2;
     } dp_ncomp_f;
     struct m_f_s {
-      char* rd, rn, rs;
+      char *rd, *rm, *rs;
     } m_f;
     struct ma_f_s {
-      char* rd, rm, rs, rn; 
+      char *rd, *rm, *rs, *rn; 
     } ma_f;
     struct sdt_f_s {
-      char* expr, rd, addr;
+      char *expr, *rd, *addr;
     } sdt_f;
     struct b_f_s {
-      char* offset;
+      char *cond, *offset;
     } b_f;
     struct lsl_f_s {
-      char* rn, expr;
+      char *rn, *expr;
     } lsl_f;
   } contents_f;
 } token_t;
