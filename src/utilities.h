@@ -58,6 +58,7 @@ enum InstructionFormat {DP_COMP_F, DP_MOV_F, DP_NCOMP_F, M_F, MA_F, SDT_F, B_F, 
 
 typedef struct token {
   enum InstructionFormat format;
+  char *free_pointer;
   union contents_f_u {
     struct dp_comp_f_s {
       char *opcode, *rd, *rn, *operand2;
