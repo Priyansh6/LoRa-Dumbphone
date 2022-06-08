@@ -53,7 +53,7 @@ typedef struct instruction {
 enum DPType { COMP, MOV, NCOMP };
 enum MType { SYN, ACCSYN };
 
-enum InstructionFormat {DP_COMP_F, DP_MOV_F, DP_NCOMP_F, M_F, MA_F, SDT_F, B_F, ANDEQ_F, LSL_F};
+enum InstructionFormat {DP_COMP_F, DP_MOV_F, DP_NCOMP_F, M_F, MA_F, SDT_F, B_F, ANDEQ_F, LSL_F, INV_F};
 
 typedef struct token {
   enum InstructionFormat format;
