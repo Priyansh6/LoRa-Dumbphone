@@ -98,6 +98,15 @@ bool isnumber(char *str, byte base);
 
 /*
 Usage:
+word toimmediate(char *str);
+
+Returns number converted from immediate constant token in assembly instruction
+Assumes first character is a '#' or '=' followed by an immediate constant in base 10 or 16
+*/
+word toimmediate(char *str);
+
+/*
+Usage:
 word shifted_rm(uint16_t shift_rm, state_t* s);
 
 Computes shifted register based on operand2 and offset fields in data processing and single data transfer instructions respectively

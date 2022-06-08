@@ -14,6 +14,11 @@ bool isnumber(char *str, byte base) {
   return true;
 }
 
+word toimmediate(char *str) {
+  str++;
+  return strlen(str) >= 2 && str[1] == 'x' ? strtoul(str + 2, NULL, 16) : strtoul(str, NULL, 10);
+}
+
 word shifted_rm(uint16_t shift_rm, state_t* s) {
   word rm = s->registers[shift_rm & 0xF];
 
