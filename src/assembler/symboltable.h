@@ -21,6 +21,8 @@ struct symbol_table {
   void (*add)(symbol_table_t *st, const char *label, address addr);
 };
 
+void init_symbol_table(symbol_table_t *st, address (*get)(symbol_table_t *st, const char *label), void (*add)(symbol_table_t *st, const char *label, address addr));
+void free_symbol_table(symbol_table_t *st);
 
 address get_label(symbol_table_t *st, const char *label); 
 void add_label(symbol_table_t *st, const char *label, address addr);
