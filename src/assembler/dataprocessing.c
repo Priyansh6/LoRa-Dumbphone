@@ -18,22 +18,22 @@ word assemble_dp(token_t token) {
   char *o2;
   switch (token.format) {
     case DP_COMP_F:
-      if (strcmp(COMP.opcode, "and")) {
+      if (!strcmp(COMP.opcode, "and")) {
         SET_OPCODE(0);
       }
-      else if (strcmp(COMP.opcode, "eor")) {
+      else if (!strcmp(COMP.opcode, "eor")) {
         SET_OPCODE(1);
       }
-      else if (strcmp(COMP.opcode, "sub")) {
+      else if (!strcmp(COMP.opcode, "sub")) {
         SET_OPCODE(2);
       }
-      else if (strcmp(COMP.opcode, "rsb")) {
+      else if (!strcmp(COMP.opcode, "rsb")) {
         SET_OPCODE(3);
       }
-      else if (strcmp(COMP.opcode, "add")) {
+      else if (!strcmp(COMP.opcode, "add")) {
         SET_OPCODE(4);
       }
-      else if (strcmp(COMP.opcode, "orr")) {
+      else if (!strcmp(COMP.opcode, "orr")) {
         SET_OPCODE(10);
       }
       
@@ -50,13 +50,13 @@ word assemble_dp(token_t token) {
       o2 = MOV.operand2;
       break;
     case DP_NCOMP_F:
-      if (strcmp(NCOMP.opcode, "tst")) {
+      if (!strcmp(NCOMP.opcode, "tst")) {
         SET_OPCODE(8);   
       }
-      else if (strcmp(NCOMP.opcode, "teq")) {
+      else if (!strcmp(NCOMP.opcode, "teq")) {
         SET_OPCODE(9); 
       }
-      else if (strcmp(NCOMP.opcode, "cmp")) {
+      else if (!strcmp(NCOMP.opcode, "cmp")) {
         SET_OPCODE(10);
       }
 
@@ -73,11 +73,37 @@ word assemble_dp(token_t token) {
 
   if (o2[0] != 'r') {
     word shift_rm = 0;
+
     char *rest;
     shift_rm |= strtoul(o2 + 1, &rest, 10);
-    result |= shift_rm;
-    if (strlen(rest)) {
+    
+    if (strlen(rest) > 3) {
       rest += 2;
+      
+      byte shift_type;
+      if (!strncmp(rest, "lsl", 3)) {
+        shift_type = 0;
+      }
+      else if (!strncmp(rest, "lsr", 3)) {
+        shift_type = 1;
+      }
+      else if (!strncmp(rest, "asr", 3)) {
+        shift_type = 2;
+      }
+      else if (!strncmp(rest, "ror", 3)) {
+        shift_type = 3;
+      }
+      shift_rm |= (shift_type << 5);
+
+      rest += 4;
+      if (rest[0] == 'r') {
+        shift_rm |= (1 << 4);
+        shift_rm |= (strtoul(rest + 1, NULL, 10) << 8);
+      } else {
+        shift_rm |= (toimmediate(rest) << 7);
+      }
+    
+      result |= shift_rm;
     }
   } else {
     result |= (1 << 25); // Setting I bit

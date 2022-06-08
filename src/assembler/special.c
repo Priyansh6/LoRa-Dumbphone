@@ -30,7 +30,7 @@ word assemble_LSL(token_t t) {
   new_line[index - new_line] = ',';
   index++;
   new_line[index - new_line] = ' ';
-  index++
+  index++;
   memcpy(index, LSL.rn, rn_len);
   index += rn_len;
   memcpy(index, mid_line, mid_len);
