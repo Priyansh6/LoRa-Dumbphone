@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "utilities.h"
-
 #define FUNCTION_START(name, code)\
 void name(token_t *token, char *str_pointer, char *sub_token){\
   token->format = code;
