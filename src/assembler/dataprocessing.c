@@ -86,6 +86,8 @@ word assemble_DP(token_t t) {
     }
   }
   
+  printf("resutlt : %x\n", result);
+
   return result;
 }
 
