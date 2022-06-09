@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
   rewind(fp);
   
   
-  token_t t;  
+  token_t t = { .format = 0 };  
   word w;  
   address inst_count = 0;
   word *outBuff = (word *) calloc(1, (MEMSIZE/4));
@@ -129,7 +129,20 @@ int main(int argc, char **argv) {
  
   }
 
-    write_binary(argv[2], outBuff, inst_count);
+    pprint_stack(constants_stack);
+
+    //adding the constants to the outBuff 
+
+    int number_constants = size(constants_stack);
+
+    for (int i = number_constants - 1 ; i >= 0 ; i--){
+      word constx = pop(constants_stack);
+      printf("CONSANT POPED %x\n", constx);
+      printf("ADDING AT %x\n", count + i );
+      outBuff[(count + i)/ 4] = constx;
+    }
+
+    write_binary(argv[2], outBuff, (inst_count + number_constants));
     free_stack(constants_stack);
   
  return EXIT_SUCCESS;
