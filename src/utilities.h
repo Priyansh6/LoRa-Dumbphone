@@ -60,14 +60,15 @@ typedef struct shifted_reg {
   byte shift_type;
   byte rm;
   union shifted_vals {
-    byte immediate, rs;
+    word immediate; 
+    byte rs;
   } shifted_vals_t;
 } shifted_reg_t;
 
 typedef struct shift {
   bool i;
   union values_oper {
-    byte immediate;
+    word immediate;
     shifted_reg_t sh_reg;   
   } values_oper_t;
 } shift_t;
