@@ -1,8 +1,10 @@
 #ifndef SINGLEDATAPROCESSING_H
 #define SINGLEDATAPROCESSING_H
 
-#include "utilities.h"
+#include "dataprocessing.h"
+#include "stack.h"
+#include "../utilities.h"
 
-word assemble_SDT(token_t t);
+word assemble_SDT(token_t t, byte curr_pc_val, byte n_instructions, stack_t *constants_stack);
 
 #endif
