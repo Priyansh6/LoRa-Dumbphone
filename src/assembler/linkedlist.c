@@ -8,6 +8,7 @@
 linked_list_t *alloc_linked_list() {
   linked_list_t *p = (linked_list_t *) malloc(sizeof(linked_list_t));
   p->head = NULL;
+  return p;
 }
 
 void pprint_node(linked_list_node_t *n) {

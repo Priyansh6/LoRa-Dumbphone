@@ -4,7 +4,7 @@
 
 #include "utilities.h"
 #include "assembler/symboltable.h"
-
+#include "assembler/tokeniser.h"
 
 int main(int argc, char **argv) {
 
@@ -38,6 +38,26 @@ int main(int argc, char **argv) {
   }
 
   pprint_symbol_table(st);
+  //second pass 
+
+  rewind(fp);
+  
+  
+
+  while (fgets(line, sizeof(line), fp)){
+
+    size_t line_length = strlen(line);
+    //get reid of new lines
+    if (line[line_length - 1] == '\n'){
+       line[line_length - 1] = '\0';
+       line_length--;
+    }
+
+    token_t t = tokenise_line(line);
+
+    word     
+ 
+ }
   
  return EXIT_SUCCESS;
 }

@@ -15,6 +15,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef uint8_t byte;
 typedef uint16_t address;
@@ -51,41 +52,72 @@ typedef struct instruction {
   } contents;
 } instruction_t;
 
-enum DPType { COMP, MOV, NCOMP };
-enum MType { SYN, ACCSYN };
-
 enum InstructionFormat {DP_COMP_F, DP_MOV_F, DP_NCOMP_F, M_F, MA_F, SDT_F, B_F, ANDEQ_F, LSL_F, INV_F};
 
 typedef struct token {
   enum InstructionFormat format;
-  char *free_pointer;
   union contents_f_u {
     struct dp_comp_f_s {
-      char *opcode, *rd, *rn, *operand2;
+      char *opcode;
+      int rd, rn; 
+      operand2_t *operand2;
     } dp_comp_f;
     struct dp_mov_f_s {
-      char *rd, *operand2;
+      int rd;
+      operand2_t *operand2;
     } dp_mov_f;
     struct dp_ncomp_f_s {
-      char *opcode, *rn, *operand2;
+      char *opcode; 
+      int rn; 
+      operand2_t *operand2;
     } dp_ncomp_f;
     struct m_f_s {
-      char *rd, *rm, *rs;
+      int rd, rm, rs;
     } m_f;
     struct ma_f_s {
-      char *rd, *rm, *rs, *rn; 
+      int rd, rm, rs, rn; 
     } ma_f;
     struct sdt_f_s {
-      char *expr, *rd, *addr;
+      char *expr; 
+      int rd; 
+      address_s_t *addr;
     } sdt_f;
     struct b_f_s {
+      char *freep;
       char *cond, *offset;
     } b_f;
     struct lsl_f_s {
-      char *rn, *expr;
+      int rn; 
+      char *expr;
     } lsl_f;
   } contents_f;
 } token_t;
+
+typedef struct shifted_reg {
+  bool is_reg;
+  byte shift_type;
+  union shifted_vals {
+    byte immediate, reg;
+  } shifted_vals_t;
+} shifted_reg_t;
+
+typedef struct operand2 {
+  bool i;
+  union values_oper {
+    byte immediate;
+    shifted_reg_t *rm;   
+  } values_oper_t;
+} operand2_t;
+
+typedef struct address_s {
+  bool p;
+  byte rn; 
+  union values_addr{
+    word immediate;
+    shifted_reg_t *rm;
+  } values_addr_t;
+} address_s_t ;
+
 
 /*
 Usage: 
