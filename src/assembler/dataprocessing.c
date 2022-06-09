@@ -8,15 +8,16 @@
 #define SET_OPCODE(op) result |= (op << 21)
 #define SET_RN(r) result |= (r << 16)
 #define SET_RD(r) result |= (r << 12)
-#define COMP token.contents_f.dp_comp_f
-#define MOV token.contents_f.dp_mov_f
-#define NCOMP token.contents_f.dp_ncomp_f
+#define COMP t.contents_f.dp_comp_f
+#define MOV t.contents_f.dp_mov_f
+#define NCOMP t.contents_f.dp_ncomp_f
+#define O2_SH_REG o2.values_oper_t.sh_reg
 
-word assemble_DP(token_t token) {
+word assemble_DP(token_t t) {
   word result = 14 << 28; // Setting condition code to 14
   
-  char *o2;
-  switch (token.format) {
+  shift_t o2;
+  switch (t.format) {
     case DP_COMP_F:
       if (!strcmp(COMP.opcode, "and")) {
         SET_OPCODE(0);
@@ -37,15 +38,15 @@ word assemble_DP(token_t token) {
         SET_OPCODE(10);
       }
       
-      SET_RD(strtoul(COMP.rd + 1, NULL, 10));
-      SET_RN(strtoul(COMP.rn + 1, NULL, 10));
+      SET_RD(COMP.rd);
+      SET_RN(COMP.rn);
 
       o2 = COMP.operand2;
       break;
     case DP_MOV_F:
       SET_OPCODE(11);
 
-      SET_RD(strtoul(MOV.rd + 1, NULL, 10));
+      SET_RD(MOV.rd);
 
       o2 = MOV.operand2;
       break;
@@ -60,7 +61,7 @@ word assemble_DP(token_t token) {
         SET_OPCODE(10);
       }
 
-      SET_RN(strtoul(NCOMP.rn + 1, NULL, 10));
+      SET_RN(NCOMP.rn);
       
       result |= (1 << 20); // Setting S bit
 
@@ -68,47 +69,22 @@ word assemble_DP(token_t token) {
       break;
     default:
       printf("Illegal instruction type to assemble");
-      return 0;
+      exit(EXIT_FAILURE);
   }  
-
-  if (o2[0] != 'r') {
-    word shift_rm = 0;
-
-    char *rest;
-    shift_rm |= strtoul(o2 + 1, &rest, 10);
-    
-    if (strlen(rest) > 3) {
-      rest += 2;
-      
-      byte shift_type;
-      if (!strncmp(rest, "lsl", 3)) {
-        shift_type = 0;
-      }
-      else if (!strncmp(rest, "lsr", 3)) {
-        shift_type = 1;
-      }
-      else if (!strncmp(rest, "asr", 3)) {
-        shift_type = 2;
-      }
-      else if (!strncmp(rest, "ror", 3)) {
-        shift_type = 3;
-      }
-      shift_rm |= (shift_type << 5);
-
-      rest += 4;
-      if (rest[0] == 'r') {
-        shift_rm |= (1 << 4);
-        shift_rm |= (strtoul(rest + 1, NULL, 10) << 8);
-      } else {
-        shift_rm |= (toimmediate(rest) << 7);
-      }
-    
-      result |= shift_rm;
-    }
-  } else {
+  
+  if (o2.i) {
     result |= (1 << 25); // Setting I bit
-    result |= toimmediate(o2);
+    result |= o2.values_oper_t.immediate;
+  } else {
+    result |= O2_SH_REG.rm;
+    result |= (O2_SH_REG.shift_type << 5);
+    if (O2_SH_REG.is_reg) {
+      result |= (1 << 4);
+      result |= (O2_SH_REG.shifted_vals_t.rs << 8);
+    } else {
+      result |= (O2_SH_REG.shifted_vals_t.immediate << 7);
+    }
   }
-
+  
   return result;
 }
