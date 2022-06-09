@@ -12,6 +12,7 @@
 #include "assembler/dataprocessing.h"
 #include "assembler/branch.h"
 #include "assembler/binaryfilewriter.h"
+#include "assembler/stack.h"
 
 #define DEBUG(x) if(is_debug) {x;};
 
@@ -59,6 +60,9 @@ int main(int argc, char **argv) {
   address inst_count = 0;
   word *outBuff = (word *) calloc(1, (MEMSIZE/4));
 
+  stack_t *constants_stack = alloc_stack();
+
+
   while (fgets(line, sizeof(line), fp)){
 
     size_t line_length = strlen(line);
@@ -68,9 +72,15 @@ int main(int argc, char **argv) {
        line_length--;
     }
 
+    if (line_length <= 1 ){
+      continue;
+    }
+
     DEBUG(printf("CONVERTING %s\n", line))
     tokenise_line(&t, line);
     DEBUG(pprint_token(t))
+
+
 
     switch (t.format) {
       case DP_COMP_F: 
@@ -87,7 +97,7 @@ int main(int argc, char **argv) {
         break;
       
       case SDT_F:
-        w = assemble_SDT(t);
+        w = assemble_SDT(t, inst_count * 4, count/4, constants_stack);
         inst_count += 1;
         break;
 
@@ -120,6 +130,7 @@ int main(int argc, char **argv) {
   }
 
     write_binary(argv[2], outBuff, inst_count);
+    free_stack(constants_stack);
   
  return EXIT_SUCCESS;
 }

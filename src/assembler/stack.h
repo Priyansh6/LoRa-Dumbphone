@@ -30,6 +30,6 @@ void free_stack(stack_t *s);
 void push(stack_t *s, word w);
 word pop(stack_t *s);
 void pprint_stack(stack_t *s);
-size_t size(stack_t *s);
+word size(stack_t *s);
 
 #endif

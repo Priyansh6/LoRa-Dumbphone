@@ -59,7 +59,12 @@ void get_shift(shift_t *shift, char *str_holder){
 
   size_t line_length = strlen(str_holder);
 
-  //if (line_length  == 0 || line_length == 1 )
+  if (line_length  == 0 || line_length == 1 ) {
+    shift->i = false;
+    shift->values_oper_t.sh_reg.is_reg = false; 
+    shift->values_oper_t.sh_reg.shifted_vals_t.immediate = 0;
+    return;
+  }
 
   opr = malloc(line_length + 1);
   char *free_p = opr;
@@ -106,7 +111,7 @@ void get_shift(shift_t *shift, char *str_holder){
       shift->values_oper_t.sh_reg.is_reg = false;
       shift->values_oper_t.sh_reg.shifted_vals_t.immediate = 0;
     }
-  } else {
+  } else  {
     shift->i = true;
     shift->values_oper_t.immediate = toimmediate(opr);
   }
@@ -225,7 +230,7 @@ FUNCTION_START(tokenise_ncomp, DP_NCOMP_F)
     token->format = INV_F;
     return;
   } else {
-    get_shift(&token->contents_f.dp_comp_f.operand2 , str_pointer);
+    get_shift(&token->contents_f.dp_ncomp_f.operand2 , str_pointer);
   }
 }
 

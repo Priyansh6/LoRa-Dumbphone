@@ -1,10 +1,11 @@
 #include "singledatatransfer.h"
+#include <string.h>
 
 #define T_SDT t.contents_f.sdt_f
 #define T_ADDR t.contents_f.sdt_f.addr
 #define T_SHIFT t.contents_f.sdt_f.addr.values_addr_t.shift
 #define T_SHIFTED t.contents_f.sdt_f.addr.values_addr_t.shift.values_oper_t.sh_reg
-#define SET_BITS(b, n) instruction |= (b << n)
+#define SET_BITS(b, n) instruction |= ((b) << (n))
 
 word assemble_SDT(token_t t, byte curr_pc_val, byte n_instructions, stack_t *constants_stack) {
   word instruction = 0;
@@ -20,15 +21,15 @@ word assemble_SDT(token_t t, byte curr_pc_val, byte n_instructions, stack_t *con
       if (T_ADDR.values_addr_t.immediate <= 0xFF) { 
         // Replace with MOV instruction
         token_t movt;
-        t.format = DP_MOV_F
-        t.contents_f.dp_mov_f.rd = T_SDT.rd;
+        movt.format = DP_MOV_F;
+        movt.contents_f.dp_mov_f.rd = T_SDT.rd;
 
         shift_t st;
         st.i = true;
-        st.immediate = T_ADDR.values_addr_t.immediate;
+        st.values_oper_t.immediate = T_ADDR.values_addr_t.immediate;
 
-        t.contents_f.dp_mov_f.operand2 = st;
-        return assemble_DP(t);
+        movt.contents_f.dp_mov_f.operand2 = st;
+        return assemble_DP(movt);
       }
       // Add to end of assembled program
       SET_BITS(PC, 16); // Set Rn to PC
@@ -49,7 +50,7 @@ word assemble_SDT(token_t t, byte curr_pc_val, byte n_instructions, stack_t *con
   if (T_ADDR.i) {
     SET_BITS(1, 25); // Set I
     if (T_ADDR.sighn) {
-      SET_BITS(1, 23) // Set U 
+      SET_BITS(1, 23); // Set U 
     }
     word offset = 0;
     offset |= T_SHIFTED.rm;
