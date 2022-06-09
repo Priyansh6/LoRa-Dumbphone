@@ -56,8 +56,8 @@ word pop(stack_t *s) {
   return w;
 }
 
-size_t size(stack_t *s) {
-  size_t n = 0;
+word size(stack_t *s) {
+  word n = 0;
   stack_node_t *curr = s->head;
   while (curr != NULL) {
     n++;
