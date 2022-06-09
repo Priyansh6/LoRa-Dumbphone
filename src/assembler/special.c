@@ -3,7 +3,6 @@
 
 #include "dataprocessing.h"
 #include "special.h"
-#include "tokeniser.h"
 
 #define LSL t.contents_f.lsl_f
 #define MOV new_t.contents_f.dp_mov_f

@@ -17,12 +17,13 @@ word assemble_M(token_t t) {
     SET(M.rm, 0);
   } else {
     result |= 1 << 21;
-    SET(MA.r, 16);
-    SET(MA.r, 12);
-    SET(MA.r, 8);
+    SET(MA.rd, 16);
+    SET(MA.rn, 12);
+    SET(MA.rs, 8);
     SET_FILLER;
-    SET(MA.r, 0);
+    SET(MA.rm, 0);
   }
 
   return result;
 }
+

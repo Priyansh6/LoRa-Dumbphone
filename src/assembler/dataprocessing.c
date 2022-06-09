@@ -35,7 +35,7 @@ word assemble_DP(token_t t) {
         SET_OPCODE(4);
       }
       else if (!strcmp(COMP.opcode, "orr")) {
-        SET_OPCODE(10);
+        SET_OPCODE(12);
       }
       
       SET_RD(COMP.rd);
@@ -44,7 +44,7 @@ word assemble_DP(token_t t) {
       o2 = COMP.operand2;
       break;
     case DP_MOV_F:
-      SET_OPCODE(11);
+      SET_OPCODE(13);
 
       SET_RD(MOV.rd);
 
@@ -71,8 +71,8 @@ word assemble_DP(token_t t) {
       printf("Illegal instruction type to assemble");
       exit(EXIT_FAILURE);
   }  
-  
-  if (o2.i) {
+  printf("%x\n", o2.i);
+  if (o2.i == 1) {
     result |= (1 << 25); // Setting I bit
     result |= o2.values_oper_t.immediate;
   } else {
@@ -88,3 +88,5 @@ word assemble_DP(token_t t) {
   
   return result;
 }
+
+

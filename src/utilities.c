@@ -137,3 +137,126 @@ void set_word(byte *memory, int addr, word w) {
   memory[addr + 2] = (byte) (w >> 16);
   memory[addr + 3] = (byte) (w >> 24);
 }
+
+
+void pprint_shifted_reg(shifted_reg_t srt) {
+    printf("          SHIFTED REG\n");
+    printf("            is_reg : %s\n", BOOL_STR(srt.is_reg));
+    printf("            shift_type : %x\n", srt.shift_type);
+    printf("            RM : %x\n", srt.rm);
+    if (srt.is_reg){
+      printf("            RS : %x\n", srt.shifted_vals_t.rs);
+    } else {
+      printf("            IMMED : %x\n", srt.shifted_vals_t.immediate);
+    }
+}
+
+void pprint_shift(shift_t srt) {
+    printf("         SHIFT\n");
+    printf("           i : %s\n", BOOL_STR(srt.i));
+    if (!srt.i){
+      pprint_shifted_reg(srt.values_oper_t.sh_reg);
+    } else {
+      printf("           IMMED : %x\n", srt.values_oper_t.immediate);
+    }
+}
+
+
+void pprint_addr(address_s_t srt){
+    printf("        ADDR\n");
+    printf("          p : %s\n", BOOL_STR(srt.p));
+    printf("          i : %s\n", BOOL_STR(srt.i));
+    printf("          sighn : %s\n", BOOL_STR(srt.sighn));
+    if (srt.i){
+      printf("          IMMED : %x\n", srt.values_addr_t.immediate);
+    } else {
+      printf("          RN : %x\n", srt.rn);
+      pprint_shift(srt.values_addr_t.shift);
+    }
+}
+
+void pprint_M(token_t token) {
+  printf("Intruction Type DP\n");
+  if (token.format == M_F) {
+    printf("  RD : %x\n", token.contents_f.m_f.rd);
+    printf("  RM : %x\n", token.contents_f.m_f.rm);
+    printf("  RS : %x\n", token.contents_f.m_f.rs);
+  }  else {
+    printf("  RD : %x\n", token.contents_f.ma_f.rd);
+    printf("  RM : %x\n", token.contents_f.ma_f.rm);
+    printf("  RS : %x\n", token.contents_f.ma_f.rs);
+    printf("  RN : %x\n", token.contents_f.ma_f.rn);
+  }
+}
+
+void pprint_DP(token_t token){
+  printf("Intruction Type DP\n");
+  switch (token.format) {
+    case DP_COMP_F:
+      printf("  OPCODE : %s\n", token.contents_f.dp_comp_f.opcode);
+      printf("  RD : %x\n", token.contents_f.dp_comp_f.rd);
+      printf("  Rn : %x\n", token.contents_f.dp_comp_f.rn);
+      pprint_shift(token.contents_f.dp_comp_f.operand2);
+      break; 
+    case DP_MOV_F:
+      printf("  RD : %x\n", token.contents_f.dp_mov_f.rd);
+      pprint_shift(token.contents_f.dp_mov_f.operand2);
+      break; 
+    case DP_NCOMP_F:
+      printf("  OPCODE : %s\n", token.contents_f.dp_ncomp_f.opcode);
+      printf("  Rn : %x\n", token.contents_f.dp_ncomp_f.rn);
+      pprint_shift(token.contents_f.dp_ncomp_f.operand2);
+      break; 
+    default:
+    printf("INV LOCATION\n");
+  }
+}
+
+void pprint_SDT(token_t token){
+  printf("Intruction Type DP\n");
+  printf("  EXPR : %s\n", token.contents_f.sdt_f.expr);
+  printf("  RD : %x\n", token.contents_f.sdt_f.rd);
+  pprint_addr(token.contents_f.sdt_f.addr);
+}
+
+void pprint_B(token_t t){
+  printf("Intruction Type BRANCH\n");
+  printf("  COND : %s\n", t.contents_f.b_f.cond);
+  printf("  OFFSET : %s\n", t.contents_f.b_f.offset);
+}
+
+
+
+void pprint_token(token_t t){
+
+  switch (t.format) {
+      case DP_COMP_F: 
+      case DP_MOV_F: 
+      case DP_NCOMP_F:
+        pprint_DP(t);
+        break;
+      
+      case M_F: 
+      case MA_F:
+        pprint_M(t);
+        break;
+      
+      case SDT_F:
+        pprint_SDT(t);
+        break;
+
+      case B_F:
+        pprint_B(t); 
+        break;
+        
+      case ANDEQ_F:
+        printf("TERMINATE\n");
+
+      case LSL_F:
+      case INV_F: 
+      default:
+        printf("NOT DEFINED PRINT\n");
+        break;
+    }  
+
+}

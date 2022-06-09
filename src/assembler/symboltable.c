@@ -122,7 +122,7 @@ void pprint_symbol_table(symbol_table_t st) {
     pprint_key_value_list(st.buckets[i]);  
   }
 }
-
+/*
 int main() {
   symbol_table_t st;
   init_symbol_table(&st, get_label, add_label); 
@@ -137,4 +137,4 @@ int main() {
 
   // Free symbol table after use
   free_symbol_table(&st);
-}
+}*/

@@ -35,13 +35,14 @@ if(sub_token == NULL){\
 #define  GOTO_TYPE_FUNC(str_case ,dest)\
 if (strcmp(str_case, sub_token) == 0) { \
   \
-  dest(&token, str_pointer, sub_token);\
-  return token;\
+  dest(token, str_pointer, sub_token);\
+  return ;\
 }
 
 // END MACROS ------------------------------------------------------------
 
 word toimmediate(char *str) {
+  INCREMENT_IF_STARTS_WITH(str, ' ')
   str++;
   return strlen(str) >= 2 && str[1] == 'x' ? strtoul(str + 2, NULL, 16) : strtoul(str, NULL, 10);
 }
@@ -55,7 +56,6 @@ byte get_reg_number(char *reg){
 
 void get_shift(shift_t *shift, char *str_holder){
   char *opr;
-  printf("here\n");
 
   size_t line_length = strlen(str_holder);
 
@@ -64,22 +64,20 @@ void get_shift(shift_t *shift, char *str_holder){
   opr = malloc(line_length + 1);
   char *free_p = opr;
   strncpy(opr, str_holder, line_length);
+
+  INCREMENT_IF_STARTS_WITH(opr, ' ')
   
   if (opr[0] == 'r') {
-    printf("here\n");
 
     shift->i = false; 
     char *rest;
     SKIP_CHARS(opr, 1)
-    printf("here\n");
     shift->values_oper_t.sh_reg.rm = strtoul(opr, &rest, 10);
-    printf("here\n");
 
     if (strlen(rest) > 3) {
-      printf("2 %s\n", rest);
       INCREMENT_IF_STARTS_WITH(rest, ',')
       INCREMENT_IF_STARTS_WITH(rest, ' ')
-      printf("2 %s\n", rest);
+
 
       if (!strncmp(rest, "lsl", 3)) {
         shift->values_oper_t.sh_reg.shift_type = 0;
@@ -93,25 +91,20 @@ void get_shift(shift_t *shift, char *str_holder){
       else if (!strncmp(rest, "ror", 3)) {
         shift->values_oper_t.sh_reg.shift_type = 3;
       }
-      printf("2\n");
 
       SKIP_CHARS(rest, 4)
-      printf("2\n");
 
       if (rest[0] == 'r') {
-        printf("2\n");
         SKIP_CHARS(rest, 1)
-        printf("2\n");
         shift->values_oper_t.sh_reg.is_reg = true;
         shift->values_oper_t.sh_reg.shifted_vals_t.rs = strtoul(rest, NULL, 10);
-        printf("2 %s\n", rest);
       } else {
         shift->values_oper_t.sh_reg.is_reg = false;
         shift->values_oper_t.sh_reg.shifted_vals_t.immediate = toimmediate(rest);
       }
     } else {
-      shift->i = true;
-      shift->values_oper_t.immediate = 0;
+      shift->values_oper_t.sh_reg.is_reg = false;
+      shift->values_oper_t.sh_reg.shifted_vals_t.immediate = 0;
     }
   } else {
     shift->i = true;
@@ -124,7 +117,6 @@ void get_shift(shift_t *shift, char *str_holder){
 
 void get_addr(address_s_t *addr, char *str_holder){
   char *add;
-  printf("here\n");
 
   size_t line_length = strlen(str_holder);
   add = malloc(line_length + 1);
@@ -141,7 +133,6 @@ void get_addr(address_s_t *addr, char *str_holder){
     INCREMENT_IF_STARTS_WITH(add, '[')
 
     INCREMENT_IF_STARTS_WITH(add, 'r')
-    printf("%s\n", add);
     addr->rn = strtoul(add, &rest, 10);
 
     if (rest[0] == ']') {
@@ -153,7 +144,6 @@ void get_addr(address_s_t *addr, char *str_holder){
         INCREMENT_IF_STARTS_WITH(rest, ']')
         INCREMENT_IF_STARTS_WITH(rest, ',')
         INCREMENT_IF_STARTS_WITH(rest, ' ')
-        printf("%s\n", rest);
 
         if (rest[0] == '-'){
           addr->sighn = false;
@@ -162,12 +152,10 @@ void get_addr(address_s_t *addr, char *str_holder){
         }
         INCREMENT_IF_STARTS_WITH(rest, '+')
         INCREMENT_IF_STARTS_WITH(rest, '-')
-        printf("%s\n", rest);
 
         get_shift(&addr->values_addr_t.shift, rest);
       }
     } else {
-      printf("%s\n", rest);
       INCREMENT_IF_STARTS_WITH(rest, ',')
       INCREMENT_IF_STARTS_WITH(rest, ' ')
       
@@ -176,13 +164,15 @@ void get_addr(address_s_t *addr, char *str_holder){
       } else {
           addr->sighn = true;
       }
-      printf("%s\n", rest);
       INCREMENT_IF_STARTS_WITH(rest, '+')
       INCREMENT_IF_STARTS_WITH(rest, '-')
 
       get_shift(&addr->values_addr_t.shift, rest);
     }
   }
+
+  free(free_p);
+
 }
 
 bool isnumber(char *str, byte base) {
@@ -218,7 +208,6 @@ FUNCTION_START(tokenise_comp ,DP_COMP_F)
 FUNCTION_START(tokenise_mov, DP_MOV_F) 
   GET_NEXT_TOKEN
   SET_IN_TOKEN(rd, dp_mov_f, get_reg_number)
-
   if(strlen(str_pointer) == 0){
     token->format = INV_F;
     return;
@@ -282,11 +271,10 @@ FUNCTION_START(tokenise_andeq, ANDEQ_F)
 FUNCTION_START(tokenise_lsl, LSL_F) 
   GET_NEXT_TOKEN
   SET_IN_TOKEN(rn, lsl_f, get_reg_number)
-  SET_IN_TOKEN_LAST(expr, lsl_f, )
+  SET_IN_TOKEN_LAST(expr, lsl_f, toimmediate)
 }
 
-token_t tokenise_line(const char *line){
-  token_t token; 
+void tokenise_line(token_t *token, const char *line){
 
   size_t line_length = strlen(line);
  
@@ -319,21 +307,21 @@ token_t tokenise_line(const char *line){
   GOTO_TYPE_FUNC("andeq", tokenise_andeq )
   GOTO_TYPE_FUNC("lsl", tokenise_lsl )
 
-  if (strncmp(sub_token, "b", 1)){
-    tokenise_b(&token, str_pointer, sub_token);
-    return token; 
+  if (sub_token[0] == 'b'){
+    tokenise_b(token, str_pointer, sub_token);
+    return ; 
   }
 
-  token.format = INV_F;
-  return token;
+  token->format = INV_F;
   
 }
 
 
-
+/*
 int main(void){
   //= (operand2_t *) malloc(sizeof(operand2_t));
-  token_t t = tokenise_line("sub r1,r1,#1");
+  token_t t ; 
+  tokenise_line(&t, "sub r1,r1,#1");
   //printf("1\n");
   //printf("4 %x\n", op.values_oper_t.sh_reg.shifted_vals_t.immediate);
 
@@ -347,5 +335,5 @@ int main(void){
 
 
 return 0;
-}
+}*/
 

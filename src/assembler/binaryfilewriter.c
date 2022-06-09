@@ -21,10 +21,9 @@ void write_binary(const char *fname, const word *buff, size_t no_words) {
     exit(EXIT_FAILURE);
   }
   
-  word swapped;
+  //word swapped;
   for (int i = 0; i < no_words; i++){
-    swapped = endian_swap(buff[i]);
-    fwrite(&swapped, sizeof(word), 1, fp);
+    fwrite(&buff[i], sizeof(word), 1, fp);
   }
 
   fclose(fp);

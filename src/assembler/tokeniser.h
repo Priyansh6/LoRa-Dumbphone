@@ -3,6 +3,6 @@
 
 #include "../utilities.h"
 
-token_t tokenise_line(const char *line);
+void tokenise_line(token_t *token, const char *line);
 
 #endif

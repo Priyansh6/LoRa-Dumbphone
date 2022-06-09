@@ -8,8 +8,11 @@ CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic
 all: assemble emulate
 
 assemble: assemble.o utilities.o
+	rm -f $(wildcard *.o)
+	rm -f assemble
+	rm -f emulate
 	$(MAKE) -C assembler
-	gcc assemble.o utilities.o assembler/dataprocessing.o assembler/linkedlist.o assembler/multiply.o assembler/singledatatransfer.o assembler/branch.o assembler/special.o assembler/symboltable.o assembler/tokeniser.o assembler/binaryfilewriter.o -o assemble
+	gcc assemble.o utilities.o assembler/stack.o assembler/dataprocessing.o assembler/multiply.o assembler/singledatatransfer.o assembler/branch.o assembler/special.o assembler/symboltable.o assembler/tokeniser.o assembler/binaryfilewriter.o -o assemble
 
 assemble.o: assemble.c
 

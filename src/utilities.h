@@ -12,6 +12,7 @@
 #define GPIO_END 0x2020002C
 
 #define BIT_MASK(x, shift, mask) ((x >> shift) & mask)
+#define BOOL_STR(b) (b ? "true" : "false")
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -111,18 +112,21 @@ typedef struct token {
       address_s_t addr;
     } sdt_f;
     struct b_f_s {
-      char *freep;
       char *cond, *offset;
     } b_f;
     struct lsl_f_s {
       int rn; 
-      char *expr;
+      byte expr;
     } lsl_f;
   } contents_f;
 } token_t;
 
+void pprint_shifted_reg(shifted_reg_t srt);
+void pprint_shift(shift_t srt);
+void pprint_addr(address_s_t srt);
 
-
+void pprint_SDT(token_t token);
+void pprint_token(token_t t);
 /*
 Usage: 
 bool isnumber(char *str);
