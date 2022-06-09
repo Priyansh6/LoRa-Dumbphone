@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,13 +69,43 @@ word assemble_DP(token_t t) {
       o2 = NCOMP.operand2;
       break;
     default:
-      printf("Illegal instruction type to assemble");
+      printf("Illegal instruction type to assemble\n");
       exit(EXIT_FAILURE);
   }  
-  printf("%x\n", o2.i);
+  
   if (o2.i == 1) {
     result |= (1 << 25); // Setting I bit
-    result |= o2.values_oper_t.immediate;
+    if (0xFFFFFF00 & o2.values_oper_t.immediate) { // Immediate may need to be rotated
+      bool last_valid = false;
+      word shift = 0;
+      word new_imm = 0;
+      
+      for (int shift_amount = 2; shift_amount < 32; shift_amount += 2) {
+        word rot_imm = rotate_shift_right(o2.values_oper_t.immediate, shift_amount); 
+        bool valid = !(rot_imm & 0xFFFFFF00);
+        
+        if (!valid && last_valid) {
+          break;
+        }
+
+        if (valid) {
+          shift = 32 - shift_amount;
+          new_imm = rot_imm;
+          last_valid = true;
+        }
+      }
+      
+      if (last_valid) {
+        result |= new_imm;
+        result |= (shift << 8);
+      } else {
+        printf("Impossible to assemble instruction with specified immediate value\n");
+        exit(EXIT_FAILURE);
+      }
+    } else { // Immediate is already in correct form
+      result |= o2.values_oper_t.immediate;
+    }
+
   } else {
     result |= O2_SH_REG.rm;
     result |= (O2_SH_REG.shift_type << 5);
