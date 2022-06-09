@@ -54,22 +54,50 @@ typedef struct instruction {
 
 enum InstructionFormat {DP_COMP_F, DP_MOV_F, DP_NCOMP_F, M_F, MA_F, SDT_F, B_F, ANDEQ_F, LSL_F, INV_F};
 
+typedef struct shifted_reg {
+  bool is_reg;
+  byte shift_type;
+  byte rm;
+  union shifted_vals {
+    byte immediate, rs;
+  } shifted_vals_t;
+} shifted_reg_t;
+
+typedef struct shift {
+  bool i;
+  union values_oper {
+    byte immediate;
+    shifted_reg_t sh_reg;   
+  } values_oper_t;
+} shift_t;
+
+typedef struct address_s {
+  bool p;
+  bool i;
+  bool sighn;
+  byte rn; 
+  union values_addr{
+    word immediate;
+    shift_t shift;
+  } values_addr_t;
+} address_s_t ;
+
 typedef struct token {
   enum InstructionFormat format;
   union contents_f_u {
     struct dp_comp_f_s {
       char *opcode;
       int rd, rn; 
-      operand2_t *operand2;
+      shift_t operand2;
     } dp_comp_f;
     struct dp_mov_f_s {
       int rd;
-      operand2_t *operand2;
+      shift_t operand2;
     } dp_mov_f;
     struct dp_ncomp_f_s {
       char *opcode; 
       int rn; 
-      operand2_t *operand2;
+      shift_t operand2;
     } dp_ncomp_f;
     struct m_f_s {
       int rd, rm, rs;
@@ -80,7 +108,7 @@ typedef struct token {
     struct sdt_f_s {
       char *expr; 
       int rd; 
-      address_s_t *addr;
+      address_s_t addr;
     } sdt_f;
     struct b_f_s {
       char *freep;
@@ -93,30 +121,6 @@ typedef struct token {
   } contents_f;
 } token_t;
 
-typedef struct shifted_reg {
-  bool is_reg;
-  byte shift_type;
-  union shifted_vals {
-    byte immediate, reg;
-  } shifted_vals_t;
-} shifted_reg_t;
-
-typedef struct operand2 {
-  bool i;
-  union values_oper {
-    byte immediate;
-    shifted_reg_t *rm;   
-  } values_oper_t;
-} operand2_t;
-
-typedef struct address_s {
-  bool p;
-  byte rn; 
-  union values_addr{
-    word immediate;
-    shifted_reg_t *rm;
-  } values_addr_t;
-} address_s_t ;
 
 
 /*
@@ -126,7 +130,7 @@ bool isnumber(char *str);
 Returns whether a string is a number in the provided base
 Works up to base 36
 */
-bool isnumber(char *str, byte base);
+//bool isnumber(char *str, byte base);
 
 /*
 Usage:
@@ -135,7 +139,7 @@ word toimmediate(char *str);
 Returns number converted from immediate constant token in assembly instruction
 Assumes first character is a '#' or '=' followed by an immediate constant in base 10 or 16
 */
-word toimmediate(char *str);
+//word toimmediate(char *str);
 
 /*
 Usage:

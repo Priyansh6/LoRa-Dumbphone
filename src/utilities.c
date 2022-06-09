@@ -5,7 +5,7 @@
 
 #include "utilities.h"
 
-
+/*
 bool isnumber(char *str, byte base) {
   char max_digit = base <= 10 ? '0' + base - 1 : 'A' + base - 11;
   for (char *x = str; *x; x++) {
@@ -20,7 +20,7 @@ bool isnumber(char *str, byte base) {
 word toimmediate(char *str) {
   str++;
   return strlen(str) >= 2 && str[1] == 'x' ? strtoul(str + 2, NULL, 16) : strtoul(str, NULL, 10);
-}
+}*/
 
 word shifted_rm(uint16_t shift_rm, state_t* s) {
   word rm = s->registers[shift_rm & 0xF];
