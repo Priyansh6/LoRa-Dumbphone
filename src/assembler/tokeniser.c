@@ -108,6 +108,7 @@ void get_shift(shift_t *shift, char *str_holder){
         shift->values_oper_t.sh_reg.shifted_vals_t.immediate = toimmediate(rest);
       }
     } else {
+      shift->values_oper_t.sh_reg.shift_type = 0;
       shift->values_oper_t.sh_reg.is_reg = false;
       shift->values_oper_t.sh_reg.shifted_vals_t.immediate = 0;
     }

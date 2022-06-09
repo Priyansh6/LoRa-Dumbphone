@@ -8,7 +8,7 @@
 #define SET_BITS(b, n) instruction |= ((b) << (n))
 
 word assemble_SDT(token_t t, byte curr_pc_val, byte n_instructions, stack_t *constants_stack) {
-  word instruction = 0;
+  word instruction = 14 << 28;
 
   SET_BITS(0x01, 26); // Distinguishing bits for SDT instruction
 
@@ -17,7 +17,7 @@ word assemble_SDT(token_t t, byte curr_pc_val, byte n_instructions, stack_t *con
   if (strcmp(T_SDT.expr, "ldr") == 0) {
     SET_BITS(1, 20); // Set L
     if (T_ADDR.i) {
-      SET_BITS(1, 25); // Set I
+      //SET_BITS(1, 25); // Set I
       if (T_ADDR.values_addr_t.immediate <= 0xFF) { 
         // Replace with MOV instruction
         token_t movt;
@@ -36,9 +36,10 @@ word assemble_SDT(token_t t, byte curr_pc_val, byte n_instructions, stack_t *con
       SET_BITS(1, 23); // Set U 
 
       SET_BITS(1, 24); // Use pre indexing
-      SET_BITS(size(constants_stack) + n_instructions - curr_pc_val + 8, 0); // Set offset
+      address addr = (size(constants_stack) * 4) + (n_instructions * 4) - curr_pc_val - 8;
+      SET_BITS(addr, 0); // Set offset
       push(constants_stack, T_ADDR.values_addr_t.immediate);
-      return instruction;
+      return instruction ;
     }
   }
 
@@ -48,7 +49,7 @@ word assemble_SDT(token_t t, byte curr_pc_val, byte n_instructions, stack_t *con
   }
 
   if (T_ADDR.i) {
-    SET_BITS(1, 25); // Set I
+    //SET_BITS(1, 25); // Set I
     if (T_ADDR.sighn) {
       SET_BITS(1, 23); // Set U 
     }
@@ -64,6 +65,7 @@ word assemble_SDT(token_t t, byte curr_pc_val, byte n_instructions, stack_t *con
     }
     offset |= shift << 4;
   } else {
+    SET_BITS(1, 25); 
     SET_BITS(1, 23); // Set U
     SET_BITS(T_ADDR.values_addr_t.immediate, 0);
   }
