@@ -140,6 +140,8 @@ token_t tokenise_line(const char *line){
   
 }
 
+
+/*
 int main(void){
 
   token_t t = tokenise_line("ldr r3,[r1,#0x4]");
@@ -152,4 +154,4 @@ int main(void){
 
 return 0;
 }
-
+*/

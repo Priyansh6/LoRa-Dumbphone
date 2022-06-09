@@ -2,13 +2,13 @@
 
 #include "multiply.h"
 
-#define M token.contents_f.m_f
-#define MA token.contents_f.ma_f
+#define M t.contents_f.m_f
+#define MA t.contents_f.ma_f
 #define SET(r, s) result |= (r << s)
 #define SET_FILLER result |= 9 << 4
 #define CONVERT(r) strtoul(r + 1, NULL, 10)
 
-word assemble_M(token t) {
+word assemble_M(token_t t) {
   word result = 14 << 28; // Setting condition code to 14
  
   if (t.format == M_F) {

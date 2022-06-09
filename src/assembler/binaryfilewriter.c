@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "utilities.h"
+#include "../utilities.h"
 
 word endian_swap(word w) {
   return (w & 0xFF)              << 24 | 
@@ -12,7 +12,7 @@ word endian_swap(word w) {
 }
 
 
-int write_binary(const char *fname, const word *buff, size_t no_words) {
+void write_binary(const char *fname, const word *buff, size_t no_words) {
  
   FILE *fp;
   fp = fopen(fname, "w");
@@ -28,4 +28,5 @@ int write_binary(const char *fname, const word *buff, size_t no_words) {
   }
 
   fclose(fp);
+
 }

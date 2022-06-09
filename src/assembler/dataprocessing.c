@@ -12,7 +12,7 @@
 #define MOV token.contents_f.dp_mov_f
 #define NCOMP token.contents_f.dp_ncomp_f
 
-word assemble_dp(token_t token) {
+word assemble_DP(token_t token) {
   word result = 14 << 28; // Setting condition code to 14
   
   char *o2;

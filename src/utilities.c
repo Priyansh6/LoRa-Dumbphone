@@ -1,7 +1,10 @@
 #include <ctype.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "utilities.h"
+
 
 bool isnumber(char *str, byte base) {
   char max_digit = base <= 10 ? '0' + base - 1 : 'A' + base - 11;

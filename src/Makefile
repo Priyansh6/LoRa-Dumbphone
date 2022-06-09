@@ -9,7 +9,7 @@ all: assemble emulate
 
 assemble: assemble.o utilities.o
 	$(MAKE) -C assembler
-	gcc emulate.o utilities.o assembler/dataprocessing.o assembler/multiply.o assembler/singledatatransfer.o assembler/branch.o assembler/special.o assembler/symboltable.o assembler/tokeniser.o assembler/binaryfilewriter.o -o emulate
+	gcc assemble.o utilities.o assembler/dataprocessing.o assembler/linkedlist.o assembler/multiply.o assembler/singledatatransfer.o assembler/branch.o assembler/special.o assembler/symboltable.o assembler/tokeniser.o assembler/binaryfilewriter.o -o assemble
 
 assemble.o: assemble.c
 
