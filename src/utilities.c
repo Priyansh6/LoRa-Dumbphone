@@ -251,8 +251,14 @@ void pprint_token(token_t t){
         
       case ANDEQ_F:
         printf("TERMINATE\n");
+        break;
 
       case LSL_F:
+        printf("LSL_F\n");
+        printf(" RN : %x\n", t.contents_f.lsl_f.rn);
+        printf(" EXPR : %x\n", t.contents_f.lsl_f.expr);
+        break;
+
       case INV_F: 
       default:
         printf("NOT DEFINED PRINT\n");

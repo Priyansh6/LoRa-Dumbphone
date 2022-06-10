@@ -7,7 +7,7 @@
 #include "tokeniser.h"
 
 // START  MACROS ------------------------------------------------------------
-#define INCREMENT_IF_STARTS_WITH(chr, val) if (chr[0] == val) {chr++;}
+#define INCREMENT_IF_STARTS_WITH(chr, val) while (1) { if (chr[0] == val) {chr++;} else {break;} } 
 #define SKIP_CHARS(chr, val) chr += val;
 
 #define FUNCTION_START(name, code)\
@@ -71,6 +71,7 @@ void get_shift(shift_t *shift, char *str_holder){
   strncpy(opr, str_holder, line_length);
 
   INCREMENT_IF_STARTS_WITH(opr, ' ')
+
   
   if (opr[0] == 'r') {
 
@@ -123,11 +124,15 @@ void get_shift(shift_t *shift, char *str_holder){
 
 void get_addr(address_s_t *addr, char *str_holder){
   char *add;
-
+  
   size_t line_length = strlen(str_holder);
   add = malloc(line_length + 1);
   char *free_p = add;
   strncpy(add, str_holder, line_length);
+  INCREMENT_IF_STARTS_WITH(add, ' ')
+
+
+  addr->sighn = true;
 
   if (add[0] == '='){
     addr->i = true;
@@ -137,13 +142,13 @@ void get_addr(address_s_t *addr, char *str_holder){
 
     addr->i = false;
     INCREMENT_IF_STARTS_WITH(add, '[')
-
     INCREMENT_IF_STARTS_WITH(add, 'r')
     addr->rn = strtoul(add, &rest, 10);
 
     if (rest[0] == ']') {
-      addr->p = true; 
+      addr->p = false; 
       if (strlen(rest) == 1 ){
+        addr->p = true; 
         addr->values_addr_t.shift.i = true; 
         addr->values_addr_t.shift.values_oper_t.immediate = 0; 
       } else {
@@ -151,25 +156,46 @@ void get_addr(address_s_t *addr, char *str_holder){
         INCREMENT_IF_STARTS_WITH(rest, ',')
         INCREMENT_IF_STARTS_WITH(rest, ' ')
 
+        printf("Checking signh of the value %s\n", rest);
+
+
         if (rest[0] == '-'){
           addr->sighn = false;
+        } else if (rest[1] == '-') {
+          addr->sighn = false;
+          SKIP_CHARS(rest, 1);
         } else {
           addr->sighn = true;
         }
+
+        printf("Checking signh of the value %s\n", rest);
+
+
         INCREMENT_IF_STARTS_WITH(rest, '+')
         INCREMENT_IF_STARTS_WITH(rest, '-')
 
         get_shift(&addr->values_addr_t.shift, rest);
       }
     } else {
+      addr->p = true; 
+
       INCREMENT_IF_STARTS_WITH(rest, ',')
       INCREMENT_IF_STARTS_WITH(rest, ' ')
+
+      printf("Checking signh of the value %s\n", rest);
       
       if (rest[0] == '-'){
           addr->sighn = false;
+      } else if (rest[1] == '-') {
+          addr->sighn = false;
+          rest[1] = '#';
+          SKIP_CHARS(rest, 1)
       } else {
           addr->sighn = true;
       }
+      
+      printf("Checking signh of the value %s\n", rest);
+
       INCREMENT_IF_STARTS_WITH(rest, '+')
       INCREMENT_IF_STARTS_WITH(rest, '-')
 
@@ -290,6 +316,9 @@ void tokenise_line(token_t *token, const char *line){
   //token.free_pointer = str_holder; 
  
   sub_token = strtok_r(str_holder, " ", &str_pointer);
+
+  INCREMENT_IF_STARTS_WITH(str_pointer, ' ')
+
 
   GOTO_TYPE_FUNC("and", tokenise_comp )
   GOTO_TYPE_FUNC("eor", tokenise_comp )

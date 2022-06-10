@@ -56,6 +56,7 @@ word assemble_DP(token_t t) {
         SET_OPCODE(8);   
       }
       else if (!strcmp(NCOMP.opcode, "teq")) {
+        printf("1 %x\n", result);
         SET_OPCODE(9); 
       }
       else if (!strcmp(NCOMP.opcode, "cmp")) {
@@ -63,8 +64,10 @@ word assemble_DP(token_t t) {
       }
 
       SET_RN(NCOMP.rn);
-      
+      printf("2 %x\n", result);
+
       result |= (1 << 20); // Setting S bit
+      printf("3 %x\n", result);
 
       o2 = NCOMP.operand2;
       break;
@@ -97,7 +100,7 @@ word assemble_DP(token_t t) {
       
       if (last_valid) {
         result |= new_imm;
-        result |= (shift << 8);
+        result |= (shift << 7);
       } else {
         printf("Impossible to assemble instruction with specified immediate value\n");
         exit(EXIT_FAILURE);

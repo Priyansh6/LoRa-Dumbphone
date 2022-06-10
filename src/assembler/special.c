@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "dataprocessing.h"
 #include "special.h"
@@ -18,6 +19,7 @@ word assemble_LSL(token_t t) {
   MOV.operand2 = (shift_t) { .values_oper_t.sh_reg = 
                            { .rm = LSL.rn, .shifted_vals_t.immediate = LSL.expr } 
                            };
-
+  printf("CHANGES TO\n");
+  pprint_token(new_t);
   return assemble_DP(new_t);
 }

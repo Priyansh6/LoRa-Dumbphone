@@ -45,8 +45,9 @@ int main(int argc, char **argv) {
       line[line_length - 1] = '\0';
       st.add(&st, line, count);
       DEBUG(printf("label %s\n", line))
+    } else if (line_length > 1){
+      count += 4;
     }
-    count += 4;
   }
 
   //pprint_symbol_table(st);
@@ -87,6 +88,8 @@ int main(int argc, char **argv) {
       case DP_MOV_F: 
       case DP_NCOMP_F:
         w = assemble_DP(t);
+        printf("w: %x\n", w);
+
         inst_count += 1;
         break;
       
@@ -138,8 +141,8 @@ int main(int argc, char **argv) {
     for (int i = number_constants - 1 ; i >= 0 ; i--){
       word constx = pop(constants_stack);
       printf("CONSANT POPED %x\n", constx);
-      printf("ADDING AT %x\n", count + i );
-      outBuff[(count + i)/ 4] = constx;
+      printf("ADDING AT %x\n", count + (i * 4) );
+      outBuff[(count + (i * 4))/ 4] = constx;
     }
 
     write_binary(argv[2], outBuff, (inst_count + number_constants));
