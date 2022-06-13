@@ -6,11 +6,21 @@
 
 #include "tokeniser.h"
 
-
-
 // START  MACROS ------------------------------------------------------------
-#define INCREMENT_IF_STARTS_WITH(chr, val) while (true) { if (chr[0] == val) {chr++;} else {break;} } 
+#define INCREMENT_IF_STARTS_WITH(chr, val) while (1) { if (chr[0] == val) {chr++;} else {break;} } 
 #define SKIP_CHARS(chr, val) chr += val;
+
+#define FUNCTION_START(name, code)\
+void name(token_t *token, char *str_pointer, char *sub_token){\
+  token->format = code;
+
+#define SET_IN_TOKEN_LAST(space_name, struct_name, convertion_function)\
+if(strlen(str_pointer) == 0){\
+  token->format = INV_F;\
+  return;\
+} else {\
+  token->contents_f.struct_name.space_name = convertion_function(str_pointer); \
+} 
 
 #define SET_IN_TOKEN(space_name, struct_name, convertion_function)\
 if(sub_token == NULL){\
@@ -20,18 +30,12 @@ if(sub_token == NULL){\
   token->contents_f.struct_name.space_name = convertion_function(sub_token); \
 }
 
-#define SET_IN_TOKEN_STR(space_name, struct_name)\
-if(sub_token == NULL){\
-  token->format = INV_F;\
-  return;\
-} else {\
-  strcpy(token->contents_f.struct_name.space_name, sub_token);\
-}
+#define GET_NEXT_TOKEN sub_token = strtok_r(NULL, ",", &str_pointer);
 
 #define  GOTO_TYPE_FUNC(str_case ,dest)\
 if (strcmp(str_case, sub_token) == 0) { \
-  dest(token, sub_token);\
-  return;\
+  \
+
 }
 
 // END MACROS ------------------------------------------------------------
@@ -43,7 +47,6 @@ word toimmediate(char *str) {
 }
 
 byte get_reg_number(char *reg){
-  INCREMENT_IF_STARTS_WITH(reg, ' ')
   INCREMENT_IF_STARTS_WITH(reg, 'r')
   return strtoul(reg, NULL, 10);
 }
@@ -51,10 +54,10 @@ byte get_reg_number(char *reg){
 
 
 void get_shift(shift_t *shift, char *str_holder){
-  size_t line_length = strlen(str_holder);
+  char *opr;
 
-  char opr_arr[line_length + 1 ];
-  char *opr = &opr_arr[0];
+  printf("%s\n", str_holder);
+  size_t line_length = strlen(str_holder);
 
   if (line_length  == 0 || line_length == 1 ) {
     shift->i = false;
@@ -63,7 +66,9 @@ void get_shift(shift_t *shift, char *str_holder){
     return;
   }
 
-  strcpy(opr, str_holder);
+  opr = malloc(line_length + 1);
+  char *free_p = opr;
+  strncpy(opr, str_holder, line_length);
 
   INCREMENT_IF_STARTS_WITH(opr, ' ')
 
@@ -113,18 +118,19 @@ void get_shift(shift_t *shift, char *str_holder){
     shift->values_oper_t.immediate = toimmediate(opr);
   }
 
+  free(free_p);
 
 }
 
-
-void get_addr(address_s_t *addr, char *str_holder){  
+void get_addr(address_s_t *addr, char *str_holder){
+  char *add;
+  
   size_t line_length = strlen(str_holder);
-
-  char add_addr[line_length + 1];
-  char *add = &add_addr[0];
-
-  strcpy(add, str_holder);
+  add = malloc(line_length + 1);
+  char *free_p = add;
+  strncpy(add, str_holder, line_length);
   INCREMENT_IF_STARTS_WITH(add, ' ')
+
 
   addr->sighn = true;
 
@@ -138,6 +144,7 @@ void get_addr(address_s_t *addr, char *str_holder){
     INCREMENT_IF_STARTS_WITH(add, '[')
     INCREMENT_IF_STARTS_WITH(add, 'r')
     addr->rn = strtoul(add, &rest, 10);
+
     if (rest[0] == ']') {
       addr->p = false; 
       if (strlen(rest) == 1 ){
@@ -149,6 +156,9 @@ void get_addr(address_s_t *addr, char *str_holder){
         INCREMENT_IF_STARTS_WITH(rest, ',')
         INCREMENT_IF_STARTS_WITH(rest, ' ')
 
+        printf("Checking signh of the value %s\n", rest);
+
+
         if (rest[0] == '-'){
           addr->sighn = false;
         } else if (rest[1] == '-') {
@@ -157,6 +167,9 @@ void get_addr(address_s_t *addr, char *str_holder){
         } else {
           addr->sighn = true;
         }
+
+        printf("Checking signh of the value %s\n", rest);
+
 
         INCREMENT_IF_STARTS_WITH(rest, '+')
         INCREMENT_IF_STARTS_WITH(rest, '-')
@@ -168,6 +181,8 @@ void get_addr(address_s_t *addr, char *str_holder){
 
       INCREMENT_IF_STARTS_WITH(rest, ',')
       INCREMENT_IF_STARTS_WITH(rest, ' ')
+
+      printf("Checking signh of the value %s\n", rest);
       
       if (rest[0] == '-'){
           addr->sighn = false;
@@ -179,12 +194,16 @@ void get_addr(address_s_t *addr, char *str_holder){
           addr->sighn = true;
       }
       
+      printf("Checking signh of the value %s\n", rest);
+
       INCREMENT_IF_STARTS_WITH(rest, '+')
       INCREMENT_IF_STARTS_WITH(rest, '-')
 
       get_shift(&addr->values_addr_t.shift, rest);
     }
   }
+
+  free(free_p);
 
 }
 
@@ -200,150 +219,109 @@ bool isnumber(char *str, byte base) {
 }
 
 
-void tokenise_comp(token_t *token, char *sub_token){
-  token->format = DP_COMP_F;
 
-  INCREMENT_IF_STARTS_WITH(sub_token, ' ')
-  SET_IN_TOKEN_STR(opcode, dp_comp_f)
 
-  sub_token = strtok(NULL, ","); 
+FUNCTION_START(tokenise_comp ,DP_COMP_F)
+  SET_IN_TOKEN(opcode, dp_comp_f, )
+  GET_NEXT_TOKEN 
   SET_IN_TOKEN(rd, dp_comp_f, get_reg_number)
-
-  sub_token = strtok(NULL, ","); 
+  GET_NEXT_TOKEN 
   SET_IN_TOKEN(rn, dp_comp_f, get_reg_number)
 
-  sub_token = strtok(NULL, "\0"); 
-  if(strlen(sub_token) == 0){
+  if(strlen(str_pointer) == 0){
     token->format = INV_F;
     return;
   } else {
-    get_shift(&token->contents_f.dp_comp_f.operand2 , sub_token);
+    get_shift(&token->contents_f.dp_comp_f.operand2 , str_pointer);
   }
 
 }
 
-
-void tokenise_mov(token_t *token, char *sub_token){
-  token->format = DP_MOV_F;
-
-  sub_token = strtok(NULL, ",");
+FUNCTION_START(tokenise_mov, DP_MOV_F) 
+  GET_NEXT_TOKEN
   SET_IN_TOKEN(rd, dp_mov_f, get_reg_number)
-
-  sub_token = strtok(NULL, "\0");
-  if(strlen(sub_token) == 0){
+  if(strlen(str_pointer) == 0){
     token->format = INV_F;
     return;
   } else {
-    get_shift(&token->contents_f.dp_mov_f.operand2 , sub_token);
+    get_shift(&token->contents_f.dp_mov_f.operand2 , str_pointer);
   }
+
 }
 
-void tokenise_ncomp(token_t *token, char *sub_token){
-  token->format = DP_NCOMP_F;
-
-  INCREMENT_IF_STARTS_WITH(sub_token, ' ')
-  SET_IN_TOKEN_STR(opcode, dp_ncomp_f)
-
-  sub_token = strtok(NULL, ","); 
+FUNCTION_START(tokenise_ncomp, DP_NCOMP_F)
+  SET_IN_TOKEN(opcode, dp_ncomp_f, )
+  GET_NEXT_TOKEN  
   SET_IN_TOKEN(rn, dp_ncomp_f, get_reg_number)
-
-  sub_token = strtok(NULL, "\0"); 
-  if(strlen(sub_token) == 0){
+  if(strlen(str_pointer) == 0){
     token->format = INV_F;
     return;
   } else {
-    get_shift(&token->contents_f.dp_ncomp_f.operand2 , sub_token);
+    get_shift(&token->contents_f.dp_ncomp_f.operand2 , str_pointer);
   }
 }
 
-void tokenise_m(token_t *token, char *sub_token){
-  token->format = M_F;
-
-  sub_token = strtok(NULL, ","); 
+FUNCTION_START(tokenise_m , M_F)
+  GET_NEXT_TOKEN
   SET_IN_TOKEN(rd, m_f, get_reg_number)
-
-  sub_token = strtok(NULL, ","); 
+  GET_NEXT_TOKEN  
   SET_IN_TOKEN(rm, m_f, get_reg_number)
-  
-  sub_token = strtok(NULL, ","); 
-  SET_IN_TOKEN(rs, m_f, get_reg_number)
+  SET_IN_TOKEN_LAST(rs, m_f, get_reg_number)
 }
 
-void tokenise_ma(token_t *token, char *sub_token){
-  token->format = MA_F;
-
-  sub_token = strtok(NULL, ","); 
+FUNCTION_START(tokenise_ma, MA_F) 
+  GET_NEXT_TOKEN
   SET_IN_TOKEN(rd, ma_f, get_reg_number)
-
-  sub_token = strtok(NULL, ","); 
+  GET_NEXT_TOKEN
   SET_IN_TOKEN(rm, ma_f, get_reg_number)
-  
-  sub_token = strtok(NULL, ","); 
+  GET_NEXT_TOKEN
   SET_IN_TOKEN(rs, ma_f, get_reg_number)
-
-  sub_token = strtok(NULL, ","); 
-  SET_IN_TOKEN(rn, ma_f, get_reg_number)
+  SET_IN_TOKEN_LAST(rn, ma_f, get_reg_number)
 }
 
-
-void tokenise_sdt(token_t *token, char *sub_token){
-  token->format = SDT_F;
-
-  INCREMENT_IF_STARTS_WITH(sub_token, ' ')
-  SET_IN_TOKEN_STR(expr, sdt_f)
-
-  sub_token = strtok(NULL, ","); 
+FUNCTION_START(tokenise_sdt, SDT_F)
+  SET_IN_TOKEN(expr, sdt_f, )
+  GET_NEXT_TOKEN
   SET_IN_TOKEN(rd, sdt_f, get_reg_number)
-
-  sub_token = strtok(NULL, "\0"); 
-  if(strlen(sub_token) == 0){
+  if(strlen(str_pointer) == 0){
     token->format = INV_F;
     return;
   } else {
-    get_addr(&token->contents_f.sdt_f.addr , sub_token);
+    get_addr(&token->contents_f.sdt_f.addr , str_pointer);
   }
 }
 
 
-void tokenise_b(token_t *token, char *sub_token){
-  token->format = B_F;
-
-  SET_IN_TOKEN_STR(cond, b_f)
-  sub_token = strtok(NULL, " "); 
-  SET_IN_TOKEN_STR(offset, b_f)
+FUNCTION_START(tokenise_b, B_F)
+  SET_IN_TOKEN(cond, b_f, )
+  SET_IN_TOKEN_LAST(offset, b_f, )
 }
 
-void tokenise_andeq(token_t *token, char *sub_token){
-  token->format = ANDEQ_F;
+FUNCTION_START(tokenise_andeq, ANDEQ_F)
 }
 
-void tokenise_lsl(token_t *token, char *sub_token){
-  token->format = LSL_F;
-
-  sub_token = strtok(NULL, ",");
+FUNCTION_START(tokenise_lsl, LSL_F) 
+  GET_NEXT_TOKEN
   SET_IN_TOKEN(rn, lsl_f, get_reg_number)
-
-  sub_token = strtok(NULL, ","); 
-  SET_IN_TOKEN(expr, lsl_f, toimmediate)
+  SET_IN_TOKEN_LAST(expr, lsl_f, toimmediate)
 }
-
 
 void tokenise_line(token_t *token, const char *line){
 
   size_t line_length = strlen(line);
  
-  char *sub_token;
+  char *str_pointer, *sub_token;
   char str_holder[line_length + 1];
-  strcpy(str_holder, line);
+  //str_holder = (char *) malloc(line_length + 1);
+  // tnaeounh
+  strncpy(str_holder, line, line_length);
+  //token->free_pointer = str_holder; 
+ 
+  sub_token = strtok_r(str_holder, " ", &str_pointer);
 
-  printf("%s\n", str_holder);
+  INCREMENT_IF_STARTS_WITH(str_pointer, ' ')
 
-  sub_token = strtok(str_holder, " ");
 
-  printf("%s\n", line);
-
-  printf("1\n");
-  
   GOTO_TYPE_FUNC("and", tokenise_comp )
   GOTO_TYPE_FUNC("eor", tokenise_comp )
   GOTO_TYPE_FUNC("sub", tokenise_comp )
@@ -351,7 +329,6 @@ void tokenise_line(token_t *token, const char *line){
   GOTO_TYPE_FUNC("add", tokenise_comp )
   GOTO_TYPE_FUNC("orr", tokenise_comp )
 
-  
   GOTO_TYPE_FUNC("mov", tokenise_mov )
 
   GOTO_TYPE_FUNC("tst", tokenise_ncomp )
@@ -368,11 +345,32 @@ void tokenise_line(token_t *token, const char *line){
   GOTO_TYPE_FUNC("lsl", tokenise_lsl )
 
   if (sub_token[0] == 'b'){
-    tokenise_b(token, sub_token);
+    tokenise_b(token, str_pointer, sub_token);
     return ; 
   }
 
   token->format = INV_F;
   
 }
+
+
+/*
+int main(void){
+  //= (operand2_t *) malloc(sizeof(operand2_t));
+  token_t t ; 
+  tokenise_line(&t, "sub r1,r1,#1");
+  //printf("1\n");
+  //printf("4 %x\n", op.values_oper_t.sh_reg.shifted_vals_t.immediate);
+
+  printf("opcode %s\n", t.contents_f.dp_comp_f.opcode);
+  printf("rd %x\n", t.contents_f.dp_comp_f.rd);
+  printf("rn %x\n", t.contents_f.dp_comp_f.rn);
+  printf("operand2-i %x\n", t.contents_f.dp_comp_f.operand2.i);
+  printf("operand2-immediate%x\n", t.contents_f.dp_comp_f.operand2.values_oper_t.immediate);
+
+
+
+
+return 0;
+}*/
 

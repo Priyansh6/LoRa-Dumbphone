@@ -213,7 +213,7 @@ void pprint_DP(token_t token){
 }
 
 void pprint_SDT(token_t token){
-  printf("Intruction Type DP\n");
+  printf("Intruction Type SDT\n");
   printf("  EXPR : %s\n", token.contents_f.sdt_f.expr);
   printf("  RD : %x\n", token.contents_f.sdt_f.rd);
   pprint_addr(token.contents_f.sdt_f.addr);
@@ -262,6 +262,8 @@ void pprint_token(token_t t){
       case INV_F: 
       default:
         printf("NOT DEFINED PRINT\n");
+        printf("FORMAT VALUE %x\n", t.format);
+        printf("FORMAT VALUE %x\n", LSL_F);
         break;
     }  
 

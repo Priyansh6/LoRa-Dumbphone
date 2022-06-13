@@ -125,6 +125,7 @@ int main(int argc, char **argv) {
         break;
     }
 
+    //free(t.free_pointer);
     DEBUG(printf("0x%x %x\n", inst_count, w);
     printf("\n\n"))
 
@@ -147,6 +148,9 @@ int main(int argc, char **argv) {
 
     write_binary(argv[2], outBuff, (inst_count + number_constants));
     free_stack(constants_stack);
-  
+    free_symbol_table(&st);
+    free(outBuff);
+    fclose(fp);
+
  return EXIT_SUCCESS;
 }

@@ -5,9 +5,9 @@ CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic
 
 .PHONY: all clean
 
-all: dataprocessing.o stack.o multiply.o singledatatransfer.o branch.o special.o symboltable.o tokeniser.o binaryfilewriter.o
+all: dataprocessing.o stack.o multiply.o singledatatransfer.o branch.o special.o symboltable.o tokeniser.o binaryfilewriter.o 
 
-dataprocessing.o: dataprocessing.c
+dataprocessing.o: dataprocessing.c 
 
 multiply.o: multiply.c
 

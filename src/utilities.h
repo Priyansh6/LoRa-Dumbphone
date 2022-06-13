@@ -11,6 +11,8 @@
 #define GPIO_START 0x20200000
 #define GPIO_END 0x2020002C
 
+#define LABEL_MAX_LENGTH 32
+
 #define BIT_MASK(x, shift, mask) ((x >> shift) & mask)
 #define BOOL_STR(b) (b ? "true" : "false")
 
@@ -52,7 +54,6 @@ typedef struct instruction {
     } b;  
   } contents;
 } instruction_t;
-
 enum InstructionFormat {DP_COMP_F, DP_MOV_F, DP_NCOMP_F, M_F, MA_F, SDT_F, B_F, ANDEQ_F, LSL_F, INV_F};
 
 typedef struct shifted_reg {
@@ -63,8 +64,7 @@ typedef struct shifted_reg {
     word immediate; 
     byte rs;
   } shifted_vals_t;
-} shifted_reg_t;
-
+} shifted_reg_t; 
 typedef struct shift {
   bool i;
   union values_oper {
@@ -74,7 +74,7 @@ typedef struct shift {
 } shift_t;
 
 typedef struct address_s {
-  bool p;
+  bool p; 
   bool i;
   bool sighn;
   byte rn; 
@@ -85,10 +85,11 @@ typedef struct address_s {
 } address_s_t ;
 
 typedef struct token {
-  enum InstructionFormat format;
+  enum InstructionFormat format; 
+  //char *free_pointer;
   union contents_f_u {
     struct dp_comp_f_s {
-      char *opcode;
+      char opcode[LABEL_MAX_LENGTH];
       int rd, rn; 
       shift_t operand2;
     } dp_comp_f;
@@ -96,8 +97,8 @@ typedef struct token {
       int rd;
       shift_t operand2;
     } dp_mov_f;
-    struct dp_ncomp_f_s {
-      char *opcode; 
+    struct dp_ncomp_f_s { 
+      char opcode[LABEL_MAX_LENGTH]; 
       int rn; 
       shift_t operand2;
     } dp_ncomp_f;
@@ -108,12 +109,12 @@ typedef struct token {
       int rd, rm, rs, rn; 
     } ma_f;
     struct sdt_f_s {
-      char *expr; 
+      char expr[LABEL_MAX_LENGTH]; 
       int rd; 
       address_s_t addr;
     } sdt_f;
     struct b_f_s {
-      char *cond, *offset;
+      char cond[LABEL_MAX_LENGTH], offset[LABEL_MAX_LENGTH];
     } b_f;
     struct lsl_f_s {
       int rn; 
