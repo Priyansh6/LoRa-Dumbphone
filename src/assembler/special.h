@@ -3,8 +3,23 @@
 
 #include "../utilities.h"
 
+
+/*
+USAGE 
+assemble_ANDEQ(token_t t);
+
+this Function is tasked with populating a word with the format specified
+by a terminate/aneeq instruction.
+*/
 word assemble_ANDEQ(token_t t); 
 
+/*
+USAGE 
+assemble_LSL(token_t t);
+
+this Function is tasked with populating a word with the format specified
+by a Logical shift left instruction.
+*/
 word assemble_LSL(token_t t);
 
 #endif

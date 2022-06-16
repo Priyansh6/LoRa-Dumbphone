@@ -5,8 +5,6 @@
 #define COND_CASE(str, val) (strcmp(str, t.contents_f.b_f.cond) == 0) {cond = val;} 
 
 word assemble_B(token_t t, symbol_table_t *st, address inst_addr){
-  printf("%s\n", t.contents_f.b_f.offset);
-
   word out = 0;
 
   out |= 0xA << 24 ; 
@@ -32,6 +30,5 @@ word assemble_B(token_t t, symbol_table_t *st, address inst_addr){
   out |=  offset_from_current & 0xFFFFFF;
 
   return out;
-
 }
 

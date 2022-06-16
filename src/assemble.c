@@ -24,6 +24,10 @@ int main(int argc, char **argv) {
 
   FILE *fp;
   fp = fopen(filename, "r");
+  if(fp == NULL){
+    perror("error opening file!");
+    exit(EXIT_FAILURE);
+  }
 
   symbol_table_t st;
   init_symbol_table(&st, get_label, add_label);
@@ -80,8 +84,6 @@ int main(int argc, char **argv) {
     DEBUG(printf("CONVERTING %s\n", line))
     tokenise_line(&t, line);
     DEBUG(pprint_token(t))
-
-
 
     switch (t.format) {
       case DP_COMP_F: 
@@ -146,11 +148,14 @@ int main(int argc, char **argv) {
       outBuff[(count + (i * 4))/ 4] = constx;
     }
 
-    write_binary(argv[2], outBuff, (inst_count + number_constants));
     free_stack(constants_stack);
     free_symbol_table(&st);
-    free(outBuff);
     fclose(fp);
+
+    write_binary(argv[2], outBuff, (inst_count + number_constants));
+    free(outBuff);
 
  return EXIT_SUCCESS;
 }
+
+

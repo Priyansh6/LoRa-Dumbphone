@@ -22,55 +22,46 @@ word assemble_DP(token_t t) {
     case DP_COMP_F:
       if (!strcmp(COMP.opcode, "and")) {
         SET_OPCODE(0);
-      }
-      else if (!strcmp(COMP.opcode, "eor")) {
+      } else if (!strcmp(COMP.opcode, "eor")) {
         SET_OPCODE(1);
-      }
-      else if (!strcmp(COMP.opcode, "sub")) {
+      } else if (!strcmp(COMP.opcode, "sub")) {
         SET_OPCODE(2);
-      }
-      else if (!strcmp(COMP.opcode, "rsb")) {
+      } else if (!strcmp(COMP.opcode, "rsb")) {
         SET_OPCODE(3);
-      }
-      else if (!strcmp(COMP.opcode, "add")) {
+      } else if (!strcmp(COMP.opcode, "add")) {
         SET_OPCODE(4);
-      }
-      else if (!strcmp(COMP.opcode, "orr")) {
+      } else if (!strcmp(COMP.opcode, "orr")) {
         SET_OPCODE(12);
       }
       
       SET_RD(COMP.rd);
       SET_RN(COMP.rn);
-
       o2 = COMP.operand2;
       break;
+
     case DP_MOV_F:
       SET_OPCODE(13);
-
       SET_RD(MOV.rd);
-
       o2 = MOV.operand2;
       break;
+
     case DP_NCOMP_F:
       if (!strcmp(NCOMP.opcode, "tst")) {
         SET_OPCODE(8);   
-      }
-      else if (!strcmp(NCOMP.opcode, "teq")) {
+      } else if (!strcmp(NCOMP.opcode, "teq")) {
         printf("1 %x\n", result);
         SET_OPCODE(9); 
-      }
-      else if (!strcmp(NCOMP.opcode, "cmp")) {
+      } else if (!strcmp(NCOMP.opcode, "cmp")) {
         SET_OPCODE(10);
       }
 
       SET_RN(NCOMP.rn);
       printf("2 %x\n", result);
-
       result |= (1 << 20); // Setting S bit
       printf("3 %x\n", result);
-
       o2 = NCOMP.operand2;
       break;
+      
     default:
       printf("Illegal instruction type to assemble\n");
       exit(EXIT_FAILURE);

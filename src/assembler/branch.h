@@ -4,6 +4,13 @@
 #include "../utilities.h"
 #include "symboltable.h"
 
+/*
+USAGE 
+assemble_B(token_t t);
+
+this Function is tasked with populating a word with the format specified
+by a branch instruction.
+*/
 word assemble_B(token_t t, symbol_table_t *st, address inst_addr);
 
 #endif

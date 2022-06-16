@@ -123,29 +123,13 @@ typedef struct token {
   } contents_f;
 } token_t;
 
-void pprint_shifted_reg(shifted_reg_t srt);
-void pprint_shift(shift_t srt);
-void pprint_addr(address_s_t srt);
-
-void pprint_SDT(token_t token);
-void pprint_token(token_t t);
 /*
 Usage: 
-bool isnumber(char *str);
+pprint_token(token_t t)
 
-Returns whether a string is a number in the provided base
-Works up to base 36
+tjis function prints out a pretty repersentantion of a tokena dnall of its parts if valid. 
 */
-//bool isnumber(char *str, byte base);
-
-/*
-Usage:
-word toimmediate(char *str);
-
-Returns number converted from immediate constant token in assembly instruction
-Assumes first character is a '#' or '=' followed by an immediate constant in base 10 or 16
-*/
-//word toimmediate(char *str);
+void pprint_token(token_t t);
 
 /*
 Usage:
