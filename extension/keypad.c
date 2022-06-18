@@ -114,20 +114,3 @@ char read_key(void) {
   }
   return last_key.value;
 }
-
-int main(void) {
-  wiringPiSetup();
-  init_keypad();
-
-  while(true) {
-    char x = read_key();
-    
-    if (x) {
-      printf("pressed: %c\n", x);
-    } else {
-      printf("no key pressed\n");
-    }
-  }
-
-  return 0;
-}
