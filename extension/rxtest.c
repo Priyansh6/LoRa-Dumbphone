@@ -29,6 +29,7 @@ int main() {
   }
 
   printf("Finished receiving data\n");
+  serialClose(fd);
 
   return 0;
 }
