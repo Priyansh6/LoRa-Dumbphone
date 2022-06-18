@@ -50,16 +50,16 @@ void init_keypad(void) {
 }
 
 key_t mode_read_key(int mode) {
-  key_t key_read = { .key_value = '\0', .row = -1, .col = -1 };
+  key_t key_read = { .value = '\0', .row = -1, .col = -1 };
 
-  // Loop through each column setting column output to low and then checking
-  // row inputs for button press
+  // Loop through each column setting column output to low and then checking row inputs for button
+  // press
   for (int c = 0; c < NUM_COLS; c++) {
     digitalWrite(col_pins[c], LOW);
 
     for (int r = 0; r < NUM_ROWS; r++) {
       if (digitalRead(row_pins[r]) == LOW) {
-        key_read.key_value = keys[r][c][mode];
+        key_read.value = keys[r][c][mode];
         key_read.row = r;
         key_read.col = c;
         break;
@@ -68,7 +68,7 @@ key_t mode_read_key(int mode) {
 
     digitalWrite(col_pins[c], HIGH);
 
-    if (key_read.key_value) {
+    if (key_read.value) {
        break;
     }
   }
@@ -76,34 +76,43 @@ key_t mode_read_key(int mode) {
 }
 
 char read_key(void) {
-  key_t last_key = { .key_value = '\0', .row = -1, .col = -1 };
+  key_t last_key = { .value = '\0', .row = -1, .col = -1 };
   key_t key;
   int mode = 0;
   int time_elapsed = 0;
+  bool accept_input = true;
   bool first = true;
 
+  // Keep scanning for inputs until MODE_CHANGE_WAIT_TIME milliseconds has elapsed
   while (time_elapsed < MODE_CHANGE_WAIT_TIME) {
     key = mode_read_key(mode);
-    if (key.key_value) {
+    
+    // If button is pressed change mode or return last button pressed if it is different
+    if (key.value && accept_input) {
       if (first) {
         last_key = key;
         first = false;
       }
+
       if (key.row == last_key.row && key.col == last_key.col) {
         mode = (mode + 1) % num_modes(key.row, key.col);
         last_key = key;
         time_elapsed = 0;
-        printf("current value: %c\n", key.key_value);
-        printf("mode: %d\n", mode);
+        accept_input = false;
+        
+        printf("Switched to: %c\n", key.value);
       } else {
-        return last_key.key_value;
+        return last_key.value;
       }
+    } else if (!key.value) {
+      accept_input = true;
     }
+
+    // Wait READ_DELAY milliseconds before checking again for input
     delay(READ_DELAY);
     time_elapsed += READ_DELAY;
   }
-
-  return last_key.key_value;
+  return last_key.value;
 }
 
 int main(void) {
@@ -112,7 +121,7 @@ int main(void) {
 
   while(true) {
     char x = read_key();
-
+    
     if (x) {
       printf("pressed: %c\n", x);
     } else {
