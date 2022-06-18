@@ -1,10 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <wiringPi.h>
 #include <wiringSerial.h>
 
 int main() {
   int fd;
-  if ((fd = serialOpen("dev/ttyS0", 9600)) < 0) {
+  if ((fd = serialOpen("/dev/ttyS0", 9600)) < 0) {
     perror("Unable to open serial!");
     exit(EXIT_FAILURE);
   }
@@ -18,7 +19,9 @@ int main() {
     while (serialDataAvail(fd)) {
       printf("%c", serialGetchar(fd));
     }
-    delay(1000);
+    //serialFlush(fd);
+    fflush(stdout);
+    delay(500);
   }
 
   printf("Finished receiving data\n");
