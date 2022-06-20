@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
 #include <wiringPi.h>
@@ -51,7 +50,7 @@ void init_keypad(void) {
   }
 }
 
-button_t mode_read_key(int mode) {
+button_t mode_read_key(int *mode) {
   button_t key_read = { .value = '\0', .row = -1, .col = -1 };
 
   // Loop through each column setting column output to low and then checking row inputs for button
@@ -61,7 +60,8 @@ button_t mode_read_key(int mode) {
 
     for (int r = 0; r < NUM_ROWS; r++) {
       if (digitalRead(row_pins[r]) == LOW) {
-        key_read.value = keys[r][c][mode];
+        *mode = *mode > button_num_modes(r, c) ? 0 : *mode;
+        key_read.value = keys[r][c][*mode];
         key_read.row = r;
         key_read.col = c;
         break;
@@ -87,7 +87,7 @@ static void reset_read_key_mid(button_t *last_key,
   *first = true;
 }
 
-bool read_key_mid(char *mid_key, time_t *start_time) {
+bool read_key_mid(char *mid_key, int *start_time) {
   static button_t last_key = { .value = '\0', .row = -1, .col = -1 };
   static int mode = 0;
   static bool accept_input = true;
@@ -95,29 +95,31 @@ bool read_key_mid(char *mid_key, time_t *start_time) {
 
   // If button is still waiting for input, then read the keypad. If not then return the last key
   // pressed or '\0' if no key was pressed
-  if (time(NULL) - *start_time <= BUTTON_WAIT_TIME) {
-    button_t key = mode_read_key(mode);
+  if (millis() - *start_time < BUTTON_WAIT_TIME) {
+    button_t key = mode_read_key(&mode);
 
     // If button is pressed change mode or return last button pressed if it is different
     if (key.value && accept_input) {
+      
       if (first) {
         last_key = key;
         first = false;
       }
 
-      if (key.row == last_key.row && key.col == last_key.col) {
+      if (key.row == last_key.row && key.col == last_key.col) { // Pressed same button
         *mid_key = key.value;
         mode = (mode + 1) % button_num_modes(key.row, key.col);
         last_key = key;
-        time(start_time);
+        *start_time = millis();
         accept_input = false;
-        printf("Switched to: %d\n", key.value);
-      } else {
+
+        printf("Switched to: %c\n", key.value);
+      } else { // Pressed different button
         *mid_key = last_key.value;
         reset_read_key_mid(&last_key, &mode, &accept_input, &first);
         return true;
       }
-    } else if (!key.value) {
+    } else if (!key.value) { // Didn't press anything
       accept_input = true;
     }
   } else {
@@ -125,52 +127,15 @@ bool read_key_mid(char *mid_key, time_t *start_time) {
     reset_read_key_mid(&last_key, &mode, &accept_input, &first);
     return true;
   }
+
+  // Required to ensure letting go of button doesn't get read as a signal
+  delay(1);
   return false;
 }
 
 char read_key(void) {
   char result;
-  time_t start_time = time(NULL);
+  int start_time = millis();
   while (!read_key_mid(&result, &start_time));
   return result;
 }
-
-// char read_key(void) {
-//   button_t last_key = { .value = '\0', .row = -1, .col = -1 };
-//   button_t key;
-//   int mode = 0;
-//   int time_elapsed = 0;
-//   bool accept_input = true;
-//   bool first = true;
-
-//   // Keep scanning for inputs until BUTTON_WAIT_TIME milliseconds has elapsed
-//   while (time_elapsed < BUTTON_WAIT_TIME) {
-//     key = mode_read_key(mode);
-    
-//     // If button is pressed change mode or return last button pressed if it is different
-//     if (key.value && accept_input) {
-//       if (first) {
-//         last_key = key;
-//         first = false;
-//       }
-
-//       if (key.row == last_key.row && key.col == last_key.col) {
-//         mode = (mode + 1) % num_modes(key.row, key.col);
-//         last_key = key;
-//         time_elapsed = 0;
-//         accept_input = false;
-        
-//         printf("Switched to: %c\n", key.value);
-//       } else {
-//         return last_key.value;
-//       }
-//     } else if (!key.value) {
-//       accept_input = true;
-//     }
-
-//     // Wait READ_DELAY milliseconds before checking again for input
-//     delay(READ_DELAY);
-//     time_elapsed += READ_DELAY;
-//   }
-//   return last_key.value;
-// }
