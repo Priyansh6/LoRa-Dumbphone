@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+#include "utilities.h"
+
 /*
 Usage:
 int fd = init_lora();

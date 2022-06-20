@@ -3,7 +3,9 @@
 #include <wiringPi.h>
 #include <wiringSerial.h>
 
-#define SERIAL_PATH "/dev/ttyS0",
+#include "lora.h"
+
+#define SERIAL_PATH "/dev/ttyS0"
 #define BAUD_RATE 9600
 
 int init_lora() {
