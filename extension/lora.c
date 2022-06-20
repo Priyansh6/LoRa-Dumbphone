@@ -118,7 +118,7 @@ void send_message(int fd, pq_t *pq, message_t message) {
   // 0xA037B22B
   for (int i = 0; i < TIMESTAMP_LENGTH; i++) {
     //printf("%x\n", (message.t >> (2 * i)) & 0xFF);
-    serialPutchar(fd, (message.t >> (8 * i)) & 0xFF);
+    serialPutchar(fd, (message.t >> (8 * (TIMESTAMP_LENGTH - i  - 1))) & 0xFF);
   }
 
   for (int i = 0; i < strlen(message.contents); i++) {

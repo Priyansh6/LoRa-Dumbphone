@@ -68,7 +68,7 @@ void receive_message_to_int(message_t *m, WINDOW *input_win) {
 }
 
 int main(int argc, char **argv) {
-  char testMes[] = "OH BABBY";
+  char testMes[] = "Well woman the way the time cold, I wanna be keepin' you warm I got the right temperature fi shelter you from the storm Oh Lord, gyal I got the right tactics to turn you on, and girl I Wanna be the Papa, you can be the Mom, oh oh!";
 
   wiringPiSetup();
   init_keypad();
