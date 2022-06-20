@@ -32,7 +32,9 @@ void free_pq_node(pq_node_t *pqn) {
 }
 
 void free_pq(pq_t *pq) {
-  free_pq_node(pq->head);
+  if (pq->head != NULL) {
+    free_pq_node(pq->head);
+  }
 }
 
 bool is_empty_pq(pq_t *pq) {
@@ -42,7 +44,7 @@ bool is_empty_pq(pq_t *pq) {
 void print_pq_node(pq_node_t *pqn) {
   printf("Sender: %s\n", pqn->message.sender);
   printf("Contents: %s\n", pqn->message.contents);
-  printf("Time: %d\n", pqn->message.time);
+  printf("Time: %d\n", pqn->message.t);
   
   if (pqn->next != NULL) {
     print_pq_node(pqn->next);
@@ -60,7 +62,7 @@ void add_to_pq(pq_t *pq, message_t message) {
   pq_node_t *node = alloc_pq_node(message);
   pq_node_t *curr = pq->head;
 
-  if (curr == NULL || node->message.time < curr->message.time) {
+  if (curr == NULL || node->message.t < curr->message.t) {
     pq->head = node;
     node->next = curr;
     return;
@@ -68,7 +70,7 @@ void add_to_pq(pq_t *pq, message_t message) {
 
   pq_node_t *prev = NULL;
 
-  while (curr != NULL && node->message.time > curr->message.time) {
+  while (curr != NULL && node->message.t >= curr->message.t) {
     prev = curr;
     curr = curr->next;
   }
@@ -105,23 +107,24 @@ void init_message(message_t *m) {
 }
 
 void send_message(int fd, pq_t *pq, message_t message) {
-  for (int i = 0; i < strlen(message->sender); i++) {
-    serialPutchar(fd, message->sender[i]);
+  for (int i = 0; i < strlen(message.sender); i++) {
+    serialPutchar(fd, message.sender[i]);
   }
 
   serialPutchar(fd, '@');
 
   for (int i = 0; i < TIMESTAMP_LENGTH; i++) {
-    serialPutchar(fd, message->t & (0xFF << i));
+    serialPutchar(fd, message.t & (0xFF << i));
   }
 
-  for (int i = 0; i < strlen(message->contents); i++) {
-    serialPutchar(fd, message->contents[i]);
+  for (int i = 0; i < strlen(message.contents); i++) {
+    serialPutchar(fd, message.contents[i]);
   }
 
   serialPutchar(fd, '\0');
 
   add_to_pq(pq, message);
+  printf("Sent message\n");
 }
 
 void poll_messages(int fd, pq_t *pq, message_t *temp) {
@@ -135,7 +138,8 @@ void poll_messages(int fd, pq_t *pq, message_t *temp) {
     switch (stage) {
       case CONTENTS:
         if (c == '\0') {
-          message_t final_message = {temp->contents, temp->sender, temp->t};
+          message_t final_message;
+          memcpy(&final_message, temp, sizeof(message_t));
           send_message(fd, pq, final_message); 
           init_message(temp);
         } else {
@@ -150,7 +154,7 @@ void poll_messages(int fd, pq_t *pq, message_t *temp) {
         }
         break;
       case TIMESTAMP:
-        temp->t |= c << (2 * (TIMESTAMP_LENGTH - 1 - bytes_read));
+        temp->t |= c << (2 * bytes_read);
         bytes_read++;
         if (bytes_read == 4) {
           stage = CONTENTS; 
@@ -172,27 +176,39 @@ bool receive_message(int fd, message_t *message) {
   return received;
 }
 
-/*
 int main() {
-  message_t m1 = {"m1", "sender1", 2};
-  message_t m2 = {"m2", "sender2", 7};
-  message_t m3 = {"m3", "sender3", 4};
-  message_t m4 = {"m4", "sender1", 1};
-
-  // ordering is t4, t1, t3, t2
-
+  int fd = init_lora();
   pq_t *pq = alloc_pq();
-  add_to_pq(pq, m1);
-  print_pq(pq);
-  add_to_pq(pq, m2);
-  print_pq(pq);
-  add_to_pq(pq, m3);
-  print_pq(pq);
-  add_to_pq(pq, m4);
+  message_t temp;
+  init_message(&temp);
+  delay(10000);
+  printf("going\n");
+  /*
+  message_t m1 = {"contents contents", "john", 10};
+  send_message(fd, pq, m1);
   print_pq(pq);
 
-  message_t q1 = pop_from_pq(pq);
-  printf("%s\n", q1.contents);
+  delay(2500);
+
+  message_t m2 = {"a slightly longer message for testing", "sean", 25};
+  send_message(fd, pq, m2);
+  print_pq(pq);
+
+  delay(2500);
+
+  message_t m3 = {"tiny msg", "small", 2};
+  send_message(fd, pq, m3);
+  print_pq(pq);
+  */
+
+  poll_messages(fd, pq, &temp);
+  print_pq(pq);
+
+  delay(4000);
+
+  poll_messages(fd, pq, &temp);
+  print_pq(pq);
+
+  close_lora(fd);
   free_pq(pq);
 }
-*/
