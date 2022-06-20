@@ -44,7 +44,7 @@ bool is_empty_pq(pq_t *pq) {
 void print_pq_node(pq_node_t *pqn) {
   printf("Sender: %s\n", pqn->message.sender);
   printf("Contents: %s\n", pqn->message.contents);
-  printf("Time: %x\n", pqn->message.t);
+  //printf("Time: %x\n", pqn->message.t);
   
   if (pqn->next != NULL) {
     print_pq_node(pqn->next);
@@ -161,7 +161,7 @@ void poll_messages(int fd, pq_t *pq, message_t *temp) {
         break;
       case TIMESTAMP:
         temp->t |= c << (8 * (TIMESTAMP_LENGTH - 1 - bytes_read));
-        printf("%x %x\n", c, temp->t);
+        //printf("%x %x\n", c, temp->t);
         bytes_read++;
         if (bytes_read == 4) {
           stage = CONTENTS; 
@@ -182,7 +182,7 @@ bool receive_message(int fd, message_t *message) {
   message->contents[i] = '\0';
   return received;
 }
-
+/*
 int main() {
   int fd = init_lora();
   pq_t *pq = alloc_pq();
@@ -190,7 +190,7 @@ int main() {
   init_message(&temp);
   delay(10000);
   printf("going\n");
-  /*
+  
   message_t m1 = {"contents contents", "john", 10};
   send_message(fd, pq, m1);
   print_pq(pq);
@@ -206,9 +206,9 @@ int main() {
   message_t m3 = {"tiny msg", "small", 2};
   send_message(fd, pq, m3);
   print_pq(pq);
-  */
+  
 
-  ///*
+  
   poll_messages(fd, pq, &temp);
   print_pq(pq);
 
@@ -216,8 +216,9 @@ int main() {
 
   poll_messages(fd, pq, &temp);
   print_pq(pq);
-  //*/
+  //
 
   close_lora(fd);
   free_pq(pq);
 }
+*/

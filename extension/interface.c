@@ -57,13 +57,12 @@ void write_message(message_t *m, char key, bool pressed, WINDOW *input_win) {
 }
 
 
-void receive_message(message_t *m, char key, bool pressed, WINDOW *input_win) {
+void receive_message_to_int(message_t *m, WINDOW *input_win) {
 
   char buff[20];
-  struct tm * timeinfo;
-  timeinfo = localtime (&mtime);
-  strftime(buff, sizeof(buff), "%b %d %H:%M", timeinfo)
-
+  struct tm temp = *gmtime(&m->t);
+  strftime(buff, sizeof(buff), "%F", &temp);
+  wprintw(input_win, "%s@%s->%s \n", m->sender, buff, m->contents);
   wrefresh(input_win);
 
 }
@@ -75,9 +74,9 @@ int main(int argc, char **argv) {
   initscr();
   refresh();
 
-  //int fd = init_lora();
-  //pq_t *pq = alloc_pq();
-  message_t temp, display_message, writing_message;
+  int fd = init_lora();
+  pq_t *pq = alloc_pq();
+  message_t temp, display_message;
 
   char *sender = argv[1];
 
@@ -120,13 +119,12 @@ int main(int argc, char **argv) {
   int t = millis();
   
   while(!quit) {
-    //poll_messages(fd, pq, &temp);
+    poll_messages(fd, pq, &temp);
 
-    //while (!is_empty_pq(pq)) {
-      //display_message = pop_from_pq(pq);
-
-      //pretty_print(display_message)
-    //}
+    while (!is_empty_pq(pq)) {
+      display_message = pop_from_pq(pq);
+      receive_message_to_int(&display_message, chat_win);
+    }
 
     bool c = read_key_mid(&key, &t);
 
@@ -135,6 +133,8 @@ int main(int argc, char **argv) {
     }
     
     if (key == '#'){
+      m.t = (unsigned)time(NULL);
+      send_message(fd, pq, m);
       wclear(input_win);
       wrefresh(input_win);
       strcpy(m.contents, "\0");
@@ -153,9 +153,9 @@ int main(int argc, char **argv) {
   getch();
   endwin();
 
-  //close_lora(fd);
-  //free_pq(pq);
-  //free(pq);
+  close_lora(fd);
+  free_pq(pq);
+  free(pq);
 
   return 0;
 }
