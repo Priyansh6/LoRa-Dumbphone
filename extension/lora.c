@@ -144,12 +144,13 @@ void poll_messages(int fd, pq_t *pq, message_t *temp) {
         if (c == '\0') {
           message_t final_message;
           memcpy(&final_message, temp, sizeof(message_t));
-	  add_to_pq(pq, final_message);
+	        add_to_pq(pq, final_message);
           init_message(temp);
           bytes_read = 0;
           stage = SENDER;
         } else {
           temp->contents[strlen(temp->contents)] = c;
+          //temp->contents[strlen(temp->contents) +1] = '\0';
         }
         break;
       case SENDER:
@@ -163,7 +164,7 @@ void poll_messages(int fd, pq_t *pq, message_t *temp) {
         temp->t |= c << (8 * (TIMESTAMP_LENGTH - 1 - bytes_read));
         //printf("%x %x\n", c, temp->t);
         bytes_read++;
-        if (bytes_read == 4) {
+        if (bytes_read >= 4) {
           stage = CONTENTS; 
         }
         break;

@@ -77,6 +77,7 @@ int main(int argc, char **argv) {
   int fd = init_lora();
   pq_t *pq = alloc_pq();
   message_t temp, display_message;
+  init_message(&temp);
 
   char *sender = argv[1];
 
