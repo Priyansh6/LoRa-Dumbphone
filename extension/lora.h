@@ -53,4 +53,6 @@ void send_message(int fd, pq_t *pq, message_t message);
 
 void poll_messages(int fd, pq_t *pq, message_t *temp);
 
+void init_message(message_t *m);
+
 #endif
