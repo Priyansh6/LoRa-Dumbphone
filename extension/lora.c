@@ -44,7 +44,7 @@ bool is_empty_pq(pq_t *pq) {
 void print_pq_node(pq_node_t *pqn) {
   printf("Sender: %s\n", pqn->message.sender);
   printf("Contents: %s\n", pqn->message.contents);
-  printf("Time: %d\n", pqn->message.t);
+  printf("Time: %x\n", pqn->message.t);
   
   if (pqn->next != NULL) {
     print_pq_node(pqn->next);
@@ -107,14 +107,18 @@ void init_message(message_t *m) {
 }
 
 void send_message(int fd, pq_t *pq, message_t message) {
+  // Sending the sender info
   for (int i = 0; i < strlen(message.sender); i++) {
     serialPutchar(fd, message.sender[i]);
   }
 
   serialPutchar(fd, '@');
 
+  // Send each byte
+  // 0xA037B22B
   for (int i = 0; i < TIMESTAMP_LENGTH; i++) {
-    serialPutchar(fd, message.t & (0xFF << i));
+    //printf("%x\n", (message.t >> (2 * i)) & 0xFF);
+    serialPutchar(fd, (message.t >> (2 * i)) & 0xFF);
   }
 
   for (int i = 0; i < strlen(message.contents); i++) {
@@ -142,6 +146,8 @@ void poll_messages(int fd, pq_t *pq, message_t *temp) {
           memcpy(&final_message, temp, sizeof(message_t));
           send_message(fd, pq, final_message); 
           init_message(temp);
+          bytes_read = 0;
+          stage = SENDER;
         } else {
           temp->contents[strlen(temp->contents)] = c;
         }
@@ -154,7 +160,8 @@ void poll_messages(int fd, pq_t *pq, message_t *temp) {
         }
         break;
       case TIMESTAMP:
-        temp->t |= c << (2 * bytes_read);
+        temp->t |= c << (8 * (TIMESTAMP_LENGTH - 1 - bytes_read));
+        printf("%x %x\n", c, temp->t);
         bytes_read++;
         if (bytes_read == 4) {
           stage = CONTENTS; 
@@ -201,6 +208,7 @@ int main() {
   print_pq(pq);
   */
 
+  ///*
   poll_messages(fd, pq, &temp);
   print_pq(pq);
 
@@ -208,6 +216,7 @@ int main() {
 
   poll_messages(fd, pq, &temp);
   print_pq(pq);
+  //*/
 
   close_lora(fd);
   free_pq(pq);
