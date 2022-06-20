@@ -9,10 +9,9 @@
 typedef struct tm tm_t;
 
 typedef struct message {
-  char* contents;
+  char contents[MESSAGE_LENGTH];
   char sender[SENDER_LENGTH];
   tm_t time;
-  int msg_len;
 } message_t;
 
 #endif
