@@ -144,7 +144,7 @@ void poll_messages(int fd, pq_t *pq, message_t *temp) {
         if (c == '\0') {
           message_t final_message;
           memcpy(&final_message, temp, sizeof(message_t));
-          send_message(fd, pq, final_message); 
+	  add_to_pq(pq, final_message);
           init_message(temp);
           bytes_read = 0;
           stage = SENDER;
