@@ -11,7 +11,7 @@ static const char keys[NUM_ROWS][NUM_COLS][NUM_MODES] = {
   { {'1', '\0', '\0', '\0', '\0'}, {'2', 'A', 'B', 'C', '\0'}, {'3', 'D', 'E', 'F', '\0'} }, 
   { {'4', 'G', 'H', 'I', '\0'}, {'5', 'J', 'K', 'L', '\0'}, {'6', 'M', 'N', 'O', '\0'} }, 
   { {'7', 'P', 'Q', 'R', 'S'}, {'8', 'T', 'U', 'V', '\0'}, {'9', 'W', 'X', 'Y', 'Z'} }, 
-  { {'*', '\0', '\0', '\0', '\0'}, {'0', ' ', '\0', '\0', '\0'}, {'#', '\0', '\0', '\0', '\0'} }
+  { {'*', '\0', '\0', '\0', '\0'}, {'0', ' ', '|', '\0', '\0'}, {'#', '\0', '\0', '\0', '\0'} }
 };
 
 // Returns number of modes a particular key has at row and col
@@ -23,7 +23,7 @@ static int button_num_modes(int row, int col) {
     case '#':
       return 1;
     case '0':
-      return 2;
+      return 3;
     case '2':
     case '3':
     case '4':

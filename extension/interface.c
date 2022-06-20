@@ -48,7 +48,7 @@ void write_message(message_t *m, char key, bool pressed, WINDOW *input_win) {
     wmove(input_win, y, x - 1);
   } else if (key == '-') {
     mvwprintw(input_win, 0, 0, "%s>%s", m->sender, m->contents);
-  } else if (key != '*') {
+  } else if (key != '*' && key != '|') {
     mvwprintw(input_win, 0, 0, "%s>%s%c", m->sender, m->contents, key);
   }
 
@@ -68,6 +68,8 @@ void receive_message_to_int(message_t *m, WINDOW *input_win) {
 }
 
 int main(int argc, char **argv) {
+  char testMes[] = "OH BABBY";
+
   wiringPiSetup();
   init_keypad();
 
@@ -141,7 +143,9 @@ int main(int argc, char **argv) {
       strcpy(m.contents, "\0");
       strcpy(m.sender, sender);
       key = '\0';
-    } else {
+    } else if (key == '|' && c) {
+      strcpy(m.contents, testMes);
+    }else {
       write_message(&m, key, c, input_win);  
     }
     
