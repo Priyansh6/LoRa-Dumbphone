@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <wiringPi.h>
 #include <wiringSerial.h>
 
@@ -7,6 +8,8 @@
 
 #define SERIAL_PATH "/dev/ttyS0"
 #define BAUD_RATE 9600
+
+enum ReadStage {CONTENTS, SENDER, TIMESTAMP};
 
 pq_t *alloc_pq() {
   pq_t *pq = (pq_t *) malloc(sizeof(pq_t));
@@ -30,6 +33,10 @@ void free_pq_node(pq_node_t *pqn) {
 
 void free_pq(pq_t *pq) {
   free_pq_node(pq->head);
+}
+
+bool is_empty_pq(pq_t *pq) {
+  return pq->head == NULL;
 }
 
 void print_pq_node(pq_node_t *pqn) {
@@ -91,8 +98,66 @@ void close_lora(int fd) {
   serialClose(fd); 
 }
 
-void send_message(int fd, message_t message) {
-  serialPrintf(fd, "%s", message.contents);
+void init_message(message_t *m) {
+  memset(m->contents, '\0', MESSAGE_LENGTH); 
+  memset(m->sender, '\0', SENDER_LENGTH); 
+  m->t = 0;
+}
+
+void send_message(int fd, pq_t *pq, message_t message) {
+  for (int i = 0; i < strlen(message->sender); i++) {
+    serialPutchar(fd, message->sender[i]);
+  }
+
+  serialPutchar(fd, '@');
+
+  for (int i = 0; i < TIMESTAMP_LENGTH; i++) {
+    serialPutchar(fd, message->t & (0xFF << i));
+  }
+
+  for (int i = 0; i < strlen(message->contents); i++) {
+    serialPutchar(fd, message->contents[i]);
+  }
+
+  serialPutchar(fd, '\0');
+
+  add_to_pq(pq, message);
+}
+
+void poll_messages(int fd, pq_t *pq, message_t *temp) {
+  static enum ReadStage stage = SENDER;
+  static int bytes_read = 0;
+  char c;
+
+  while (serialDataAvail(fd) > 0) {
+    c = serialGetchar(fd);
+
+    switch (stage) {
+      case CONTENTS:
+        if (c == '\0') {
+          message_t final_message = {temp->contents, temp->sender, temp->t};
+          send_message(fd, pq, final_message); 
+          init_message(temp);
+        } else {
+          temp->contents[strlen(temp->contents)] = c;
+        }
+        break;
+      case SENDER:
+        if (c == '@') {
+          stage = TIMESTAMP;
+        } else {
+          temp->sender[strlen(temp->sender)] = c;
+        }
+        break;
+      case TIMESTAMP:
+        temp->t |= c << (2 * (TIMESTAMP_LENGTH - 1 - bytes_read));
+        bytes_read++;
+        if (bytes_read == 4) {
+          stage = CONTENTS; 
+        }
+        break;
+    }
+  }
 }
 
 bool receive_message(int fd, message_t *message) {
