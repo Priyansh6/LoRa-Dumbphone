@@ -3,6 +3,16 @@
 
 #include <stdbool.h>
 
+/*
+Usage:
+int fd = init_lora();
+
+send_message(fd, message);
+bool received  = receive_message(fd, *message);
+
+close_lora(fd);
+*/
+
 int init_lora();
 
 void close_lora(int fd);
