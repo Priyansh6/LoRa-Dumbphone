@@ -127,8 +127,8 @@ void send_message(int fd, pq_t *pq, message_t message) {
 
   serialPutchar(fd, '\0');
 
-  add_to_pq(pq, message);
-  printf("Sent message\n");
+  //add_to_pq(pq, message);
+  //printf("Sent message\n");
 }
 
 void poll_messages(int fd, pq_t *pq, message_t *temp) {
