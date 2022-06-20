@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
+#include <time.h>
 #include <wiringPi.h>
 
 #include "keypad.h"
@@ -11,18 +12,19 @@ static const char keys[NUM_ROWS][NUM_COLS][NUM_MODES] = {
   { {'1', '\0', '\0', '\0', '\0'}, {'2', 'A', 'B', 'C', '\0'}, {'3', 'D', 'E', 'F', '\0'} }, 
   { {'4', 'G', 'H', 'I', '\0'}, {'5', 'J', 'K', 'L', '\0'}, {'6', 'M', 'N', 'O', '\0'} }, 
   { {'7', 'P', 'Q', 'R', 'S'}, {'8', 'T', 'U', 'V', '\0'}, {'9', 'W', 'X', 'Y', 'Z'} }, 
-  { {'*', '\0', '\0', '\0', '\0'}, {'0', '\0', '\0', '\0', '\0'}, {'#', '\0', '\0', '\0', '\0'} }
+  { {'*', '\0', '\0', '\0', '\0'}, {'0', ' ', '\0', '\0', '\0'}, {'#', '\0', '\0', '\0', '\0'} }
 };
 
 // Returns number of modes a particular key has at row and col
-static int num_modes(int row, int col) {
+static int button_num_modes(int row, int col) {
   char cell = keys[row][col][0];
   switch (cell) {
     case '1':
     case '*':
-    case '0':
     case '#':
       return 1;
+    case '0':
+      return 2;
     case '2':
     case '3':
     case '4':
@@ -49,8 +51,8 @@ void init_keypad(void) {
   }
 }
 
-key_t mode_read_key(int mode) {
-  key_t key_read = { .value = '\0', .row = -1, .col = -1 };
+button_t mode_read_key(int mode) {
+  button_t key_read = { .value = '\0', .row = -1, .col = -1 };
 
   // Loop through each column setting column output to low and then checking row inputs for button
   // press
@@ -75,18 +77,27 @@ key_t mode_read_key(int mode) {
   return key_read;
 }
 
-char read_key(void) {
-  key_t last_key = { .value = '\0', .row = -1, .col = -1 };
-  key_t key;
-  int mode = 0;
-  int time_elapsed = 0;
-  bool accept_input = true;
-  bool first = true;
+static void reset_read_key_mid(button_t *last_key, 
+                              int *mode, 
+                              bool *accept_input, 
+                              bool *first) {
+  *last_key = (button_t) { .value = '\0', .row = -1, .col = -1 };
+  *mode = 0;
+  *accept_input = true;
+  *first = true;
+}
 
-  // Keep scanning for inputs until MODE_CHANGE_WAIT_TIME milliseconds has elapsed
-  while (time_elapsed < MODE_CHANGE_WAIT_TIME) {
-    key = mode_read_key(mode);
-    
+bool read_key_mid(char *mid_key, time_t *start_time) {
+  static button_t last_key = { .value = '\0', .row = -1, .col = -1 };
+  static int mode = 0;
+  static bool accept_input = true;
+  static bool first = true;
+
+  // If button is still waiting for input, then read the keypad. If not then return the last key
+  // pressed or '\0' if no key was pressed
+  if (time(NULL) - *start_time <= BUTTON_WAIT_TIME) {
+    button_t key = mode_read_key(mode);
+
     // If button is pressed change mode or return last button pressed if it is different
     if (key.value && accept_input) {
       if (first) {
@@ -95,22 +106,71 @@ char read_key(void) {
       }
 
       if (key.row == last_key.row && key.col == last_key.col) {
-        mode = (mode + 1) % num_modes(key.row, key.col);
+        *mid_key = key.value;
+        mode = (mode + 1) % button_num_modes(key.row, key.col);
         last_key = key;
-        time_elapsed = 0;
+        time(start_time);
         accept_input = false;
-        
-        printf("Switched to: %c\n", key.value);
+        printf("Switched to: %d\n", key.value);
       } else {
-        return last_key.value;
+        *mid_key = last_key.value;
+        reset_read_key_mid(&last_key, &mode, &accept_input, &first);
+        return true;
       }
     } else if (!key.value) {
       accept_input = true;
     }
-
-    // Wait READ_DELAY milliseconds before checking again for input
-    delay(READ_DELAY);
-    time_elapsed += READ_DELAY;
+  } else {
+    *mid_key = last_key.value;
+    reset_read_key_mid(&last_key, &mode, &accept_input, &first);
+    return true;
   }
-  return last_key.value;
+  return false;
 }
+
+char read_key(void) {
+  char result;
+  time_t start_time = time(NULL);
+  while (!read_key_mid(&result, &start_time));
+  return result;
+}
+
+// char read_key(void) {
+//   button_t last_key = { .value = '\0', .row = -1, .col = -1 };
+//   button_t key;
+//   int mode = 0;
+//   int time_elapsed = 0;
+//   bool accept_input = true;
+//   bool first = true;
+
+//   // Keep scanning for inputs until BUTTON_WAIT_TIME milliseconds has elapsed
+//   while (time_elapsed < BUTTON_WAIT_TIME) {
+//     key = mode_read_key(mode);
+    
+//     // If button is pressed change mode or return last button pressed if it is different
+//     if (key.value && accept_input) {
+//       if (first) {
+//         last_key = key;
+//         first = false;
+//       }
+
+//       if (key.row == last_key.row && key.col == last_key.col) {
+//         mode = (mode + 1) % num_modes(key.row, key.col);
+//         last_key = key;
+//         time_elapsed = 0;
+//         accept_input = false;
+        
+//         printf("Switched to: %c\n", key.value);
+//       } else {
+//         return last_key.value;
+//       }
+//     } else if (!key.value) {
+//       accept_input = true;
+//     }
+
+//     // Wait READ_DELAY milliseconds before checking again for input
+//     delay(READ_DELAY);
+//     time_elapsed += READ_DELAY;
+//   }
+//   return last_key.value;
+// }
