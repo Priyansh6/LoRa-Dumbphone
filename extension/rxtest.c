@@ -18,14 +18,21 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
+  char c;
   for (int i = 0; i < 240; i++) {
     while ((e = serialDataAvail(fd)) > 0) {
-      printf("%c", serialGetchar(fd));
+      c = serialGetchar(fd);
+      //printf("%c", c);
+      if (c < 33) {
+        printf("%d", c);
+      } else {
+        printf("%c", c);
+      }
     }
     printf("\nerrno: %s\n", strerror(errno));
     //serialFlush(fd);
     fflush(stdout);
-    delay(500);
+    delay(2000);
   }
 
   printf("Finished receiving data\n");

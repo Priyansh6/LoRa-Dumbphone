@@ -4,24 +4,56 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <wiringPi.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "keypad.h"
+//#include "keypad.h"
 #include "utilities.h"
 #include "lora.h"
+
 
 enum Win {CHAT_WIN, IN_WIN};
 
 WINDOW *create_newwin(int height, int width, int starty, int startx);
 
+void write_message(message_t *m, char key, bool pressed, WINDOW *input_win) {
+  int str_len = strlen(m->contents);  
+
+
+  if (key == '*' && pressed){
+    m->contents[str_len - 1] = '\0';
+    key = '\0';
+  }else if (pressed) {
+    m->contents[str_len] = key; 
+    m->contents[str_len + 1] = '\0';
+    key = '-';
+    // add key to the string and set it to the singleton
+  }
+
+  if (key == '\0'){
+    mvwprintw(input_win, 0, 0, "%s>%s ", m->sender, m->contents);
+    int y, x;
+    getyx(input_win, y, x);
+    wmove(input_win, y, x - 1);
+  } else if (key == '-') {
+    mvwprintw(input_win, 0, 0, "%s>%s", m->sender, m->contents);
+  } else {
+    mvwprintw(input_win, 0, 0, "%s>%s%c", m->sender, m->contents, key);
+  }
+
+  wrefresh(input_win);
+
+}
+
 int main(int argc, char **argv) {
   wiringPiSetup();
-  init_keypad();
+  //init_keypad();
 
   initscr();
   refresh();
 
-  int fd = init_lora();
-  pq_t *pq = alloc_pq();
+  //int fd = init_lora();
+  //pq_t *pq = alloc_pq();
   message_t temp, display_message, writing_message;
 
   char *sender = argv[1];
@@ -59,10 +91,15 @@ int main(int argc, char **argv) {
   
   //sender@time|contents\0
 
-  mvwprintw(input_win, 0, 0, "%s: msg1", sender);
+  message_t m;
+
+  strcpy(m.contents, "CURR");
+  strcpy(m.sender, "om");
+  m.time = 1003872837187;
+
   wrefresh(input_win);
 
-  char key = \0;
+  //char key = \0;
 
   /*
   while(!quit) {
@@ -90,9 +127,9 @@ int main(int argc, char **argv) {
   getch();
 
   endwin();
-  close_lora(fd);
-  free_pq(pq);
-  free(pq);
+  //close_lora(fd);
+  //free_pq(pq);
+  //free(pq);
 
   return 0;
 }
@@ -111,9 +148,7 @@ WINDOW *create_newwin(int height, int width, int starty, int startx)
 	return local_win;
 }
 
-void write_message(message_t m) {
-  break;
-}
+
 
 // time_t     now;
 // struct tm  ts;
