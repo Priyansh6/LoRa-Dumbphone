@@ -112,8 +112,6 @@ bool read_key_mid(char *mid_key, int *start_time) {
         last_key = key;
         *start_time = millis();
         accept_input = false;
-
-        printf("Switched to: %c\n", key.value);
       } else { // Pressed different button
         *mid_key = last_key.value;
         reset_read_key_mid(&last_key, &mode, &accept_input, &first);
@@ -123,7 +121,6 @@ bool read_key_mid(char *mid_key, int *start_time) {
       accept_input = true;
     }
   } else {
-    *mid_key = last_key.value;
     reset_read_key_mid(&last_key, &mode, &accept_input, &first);
     return true;
   }

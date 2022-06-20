@@ -6,21 +6,32 @@
 #include <wiringPi.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
-//#include "keypad.h"
+#include "keypad.h"
 #include "utilities.h"
 #include "lora.h"
 
 
-enum Win {CHAT_WIN, IN_WIN};
+WINDOW *create_newwin(int height, int width, int starty, int startx)
+{	WINDOW *local_win, *box_win;
 
-WINDOW *create_newwin(int height, int width, int starty, int startx);
+  box_win = newwin(height, width, starty, startx);
+	local_win = newwin(height - 2, width - 2, starty + 1, startx + 1);
+	box(box_win, 0 , 0);		/* 0, 0 gives default characters 
+					 * for the vertical and horizontal
+					 * lines			*/
+	wrefresh(box_win);
+  wrefresh(local_win);		/* Show that box 		*/
+
+	return local_win;
+}
 
 void write_message(message_t *m, char key, bool pressed, WINDOW *input_win) {
   int str_len = strlen(m->contents);  
 
 
-  if (key == '*' && pressed){
+  if (key == '*' && str_len >= 1){
     m->contents[str_len - 1] = '\0';
     key = '\0';
   }else if (pressed) {
@@ -37,7 +48,7 @@ void write_message(message_t *m, char key, bool pressed, WINDOW *input_win) {
     wmove(input_win, y, x - 1);
   } else if (key == '-') {
     mvwprintw(input_win, 0, 0, "%s>%s", m->sender, m->contents);
-  } else {
+  } else if (key != '*') {
     mvwprintw(input_win, 0, 0, "%s>%s%c", m->sender, m->contents, key);
   }
 
@@ -45,9 +56,21 @@ void write_message(message_t *m, char key, bool pressed, WINDOW *input_win) {
 
 }
 
+
+void receive_message(message_t *m, char key, bool pressed, WINDOW *input_win) {
+
+  char buff[20];
+  struct tm * timeinfo;
+  timeinfo = localtime (&mtime);
+  strftime(buff, sizeof(buff), "%b %d %H:%M", timeinfo)
+
+  wrefresh(input_win);
+
+}
+
 int main(int argc, char **argv) {
   wiringPiSetup();
-  //init_keypad();
+  init_keypad();
 
   initscr();
   refresh();
@@ -59,14 +82,6 @@ int main(int argc, char **argv) {
   char *sender = argv[1];
 
   bool quit = false;
-
-  enum Win active = IN_WIN;
-
-  /* 1. Receive from specific sender
-     2. Receive from all
-     3. Set sender id
-     4. Chat
-     */
 
   int MAX_HEIGHT, MAX_WIDTH;
   float chat_scale;
@@ -86,66 +101,63 @@ int main(int argc, char **argv) {
     MAX_HEIGHT * chat_scale,
     0);
 
+  scrollok(chat_win, true);
+
   // wprintw("adam@|utc+1|22:58:11|01-10-2002|: Hamish is cool");
   // refresh();
   
   //sender@time|contents\0
 
   message_t m;
+  char key = '\0';
 
-  strcpy(m.contents, "CURR");
-  strcpy(m.sender, "om");
-  m.time = 1003872837187;
 
-  wrefresh(input_win);
+  strcpy(m.contents, "\0");
+  strcpy(m.sender, sender);
+  write_message(&m, '\0', false, input_win);
 
-  //char key = \0;
-
-  /*
+  
+  int t = millis();
+  
   while(!quit) {
-    poll_messages(fd, pq, &temp);
+    //poll_messages(fd, pq, &temp);
 
-    while (!is_empty_pq(pq)) {
-      display_message = pop_from_pq(pq);
+    //while (!is_empty_pq(pq)) {
+      //display_message = pop_from_pq(pq);
 
       //pretty_print(display_message)
-    }
+    //}
 
-    bool c = read_key(&key);
+    bool c = read_key_mid(&key, &t);
 
     if (c) {
-      if (key == send_key) {
-        send_message(fd, pq, writing_message);
-      } else {
-        // writing_message.t = ...
-        // write char to current message/screen
+      t = millis();
+    }
+    
+    if (key == '#'){
+      wclear(input_win);
+      wrefresh(input_win);
+      strcpy(m.contents, "\0");
+      strcpy(m.sender, sender);
+      key = '\0';
+    } else {
+      write_message(&m, key, c, input_win);  
+    }
+    
+    if (c || key == '*' || key == '#'){
+        key = '\0';
+        t = millis();
       }
-    } 
   }
-  */
 
   getch();
-
   endwin();
+
   //close_lora(fd);
   //free_pq(pq);
   //free(pq);
 
   return 0;
-}
-
-WINDOW *create_newwin(int height, int width, int starty, int startx)
-{	WINDOW *local_win, *box_win;
-
-  box_win = newwin(height, width, starty, startx);
-	local_win = newwin(height - 2, width - 2, starty + 1, startx + 1);
-	box(box_win, 0 , 0);		/* 0, 0 gives default characters 
-					 * for the vertical and horizontal
-					 * lines			*/
-	wrefresh(box_win);
-  wrefresh(local_win);		/* Show that box 		*/
-
-	return local_win;
 }
 
 
