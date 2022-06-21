@@ -60,7 +60,7 @@ button_t mode_read_key(int *mode) {
 
     for (int r = 0; r < NUM_ROWS; r++) {
       if (digitalRead(row_pins[r]) == LOW) {
-        *mode = *mode > button_num_modes(r, c) ? 0 : *mode;
+        *mode = *mode >= button_num_modes(r, c) ? 0 : *mode;
         key_read.value = keys[r][c][*mode];
         key_read.row = r;
         key_read.col = c;
@@ -131,8 +131,14 @@ bool read_key_mid(char *mid_key, int *start_time) {
 }
 
 char read_key(void) {
-  char result;
+  char last_result = '\0';
+  char result = '\0';
   int start_time = millis();
-  while (!read_key_mid(&result, &start_time));
+  while (!read_key_mid(&result, &start_time)) {
+    if (result && result != last_result) {
+      printf("Switched to: %c\n", result);
+      last_result = result;
+    } 
+  }
   return result;
 }
