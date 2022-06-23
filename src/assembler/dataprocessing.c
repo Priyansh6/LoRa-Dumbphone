@@ -6,16 +6,16 @@
 
 #include "dataprocessing.h"
 
-#define SET_OPCODE(op) result |= (op << 21)
-#define SET_RN(r) result |= (r << 16)
-#define SET_RD(r) result |= (r << 12)
+#define SET_OPCODE(op) instruction |= (op << 21)
+#define SET_RN(r) instruction |= (r << 16)
+#define SET_RD(r) instruction |= (r << 12)
 #define COMP t.contents_f.dp_comp_f
 #define MOV t.contents_f.dp_mov_f
 #define NCOMP t.contents_f.dp_ncomp_f
 #define O2_SH_REG o2.values_oper_t.sh_reg
 
 word assemble_DP(token_t t) {
-  word result = 14 << 28; // Setting condition code to 14
+  word instruction = 14 << 28; // Setting condition code to 14
   
   shift_t o2;
   switch (t.format) {
@@ -38,37 +38,35 @@ word assemble_DP(token_t t) {
       SET_RN(COMP.rn);
       o2 = COMP.operand2;
       break;
-
+    
     case DP_MOV_F:
       SET_OPCODE(13);
       SET_RD(MOV.rd);
       o2 = MOV.operand2;
       break;
-
+    
     case DP_NCOMP_F:
       if (!strcmp(NCOMP.opcode, "tst")) {
         SET_OPCODE(8);   
       } else if (!strcmp(NCOMP.opcode, "teq")) {
-        printf("1 %x\n", result);
         SET_OPCODE(9); 
       } else if (!strcmp(NCOMP.opcode, "cmp")) {
         SET_OPCODE(10);
       }
 
       SET_RN(NCOMP.rn);
-      printf("2 %x\n", result);
-      result |= (1 << 20); // Setting S bit
-      printf("3 %x\n", result);
+      SET_BITS(instruction, 1, 20); // Setting S bit
       o2 = NCOMP.operand2;
       break;
-      
+    
     default:
       printf("Illegal instruction type to assemble\n");
       exit(EXIT_FAILURE);
   }  
   
   if (o2.i == 1) {
-    result |= (1 << 25); // Setting I bit
+    SET_BITS(instruction, 1, 25); // Setting I bit
+
     if (0xFFFFFF00 & o2.values_oper_t.immediate) { // Immediate may need to be rotated
       bool last_valid = false;
       word shift = 0;
@@ -90,30 +88,28 @@ word assemble_DP(token_t t) {
       }
       
       if (last_valid) {
-        result |= new_imm;
-        result |= (shift << 7);
+        SET_BITS(instruction, new_imm, 0);
+        SET_BITS(instruction, shift, 7);
       } else {
         printf("Impossible to assemble instruction with specified immediate value\n");
         exit(EXIT_FAILURE);
       }
     } else { // Immediate is already in correct form
-      result |= o2.values_oper_t.immediate;
+      SET_BITS(instruction, o2.values_oper_t.immediate, 0);
     }
 
   } else {
-    result |= O2_SH_REG.rm;
-    result |= (O2_SH_REG.shift_type << 5);
+    SET_BITS(instruction, O2_SH_REG.rm, 0);
+    SET_BITS(instruction, O2_SH_REG.shift_type, 5);
     if (O2_SH_REG.is_reg) {
-      result |= (1 << 4);
-      result |= (O2_SH_REG.shifted_vals_t.rs << 8);
+      SET_BITS(instruction, 1, 4);
+      SET_BITS(instruction, O2_SH_REG.shifted_vals_t.rs, 8);
     } else {
-      result |= (O2_SH_REG.shifted_vals_t.immediate << 7);
+      SET_BITS(instruction, O2_SH_REG.shifted_vals_t.immediate, 7);
     }
   }
-  
-  printf("resutlt : %x\n", result);
 
-  return result;
+  return instruction;
 }
 
 

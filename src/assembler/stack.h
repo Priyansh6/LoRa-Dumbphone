@@ -3,7 +3,6 @@
 
 #include "../utilities.h"
 
-
 /*
 Usage:
 stack_t *s = alloc_stack();

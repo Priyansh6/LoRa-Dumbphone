@@ -7,8 +7,8 @@
 USAGE 
 assemble_DP(token_t t);
 
-this Function is tasked with populating a word with the format specified
-by a data prosessing instruction.
+This function is tasked with populating a word with the format specified
+by a data processing instruction.
 */
 word assemble_DP(token_t t);
 

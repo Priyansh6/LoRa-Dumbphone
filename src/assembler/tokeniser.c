@@ -1,13 +1,13 @@
-#include <stdbool.h>
 #include <ctype.h>
-#include <string.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "tokeniser.h"
 
 // START  MACROS ------------------------------------------------------------
-#define INCREMENT_IF_STARTS_WITH(chr, val) while (true) { if (chr[0] == val) {chr++;} else {break;} } 
+#define INCREMENT_IF_STARTS_WITH(chr, val) while (true) {if (chr[0] == val) {chr++;} else {break;}}
 #define SKIP_CHARS(chr, val) chr += val;
 
 #define SET_IN_TOKEN(token, sub_token, space_name, struct_name, convertion_function)\
@@ -46,7 +46,7 @@ byte get_reg_number(char *reg) {
   return strtoul(reg, NULL, 10);
 }
 
-void get_shift(shift_t *shift, char *str_holder){
+void get_shift(shift_t *shift, char *str_holder) {
   size_t line_length = strlen(str_holder);
 
   char opr_arr[line_length + 1];
@@ -104,7 +104,7 @@ void get_shift(shift_t *shift, char *str_holder){
   }
 }
 
-void get_addr(address_s_t *addr, char *str_holder){  
+void get_addr(address_s_t *addr, char *str_holder) {  
   size_t line_length = strlen(str_holder);
 
   char addr_str_arr[line_length + 1];
@@ -130,7 +130,7 @@ void get_addr(address_s_t *addr, char *str_holder){
     if (rest[0] == ']') {
       addr->p = false; 
 
-      if (strlen(rest) == 1 ){
+      if (strlen(rest) == 1 ) {
         addr->p = true; 
         addr->values_addr_t.shift.i = true; 
         addr->values_addr_t.shift.values_oper_t.immediate = 0; 
@@ -144,7 +144,7 @@ void get_addr(address_s_t *addr, char *str_holder){
     INCREMENT_IF_STARTS_WITH(rest, ',')
     INCREMENT_IF_STARTS_WITH(rest, ' ')
       
-    if (rest[0] == '-'){
+    if (rest[0] == '-') {
         addr->sighn = false;
     } else if (rest[1] == '-') {
         addr->sighn = false;
@@ -161,7 +161,7 @@ void get_addr(address_s_t *addr, char *str_holder){
   }
 }
 
-void tokenise_comp(token_t *token, char *sub_token){
+void tokenise_comp(token_t *token, char *sub_token) {
   token->format = DP_COMP_F;
 
   INCREMENT_IF_STARTS_WITH(sub_token, ' ')
@@ -174,7 +174,7 @@ void tokenise_comp(token_t *token, char *sub_token){
   SET_IN_TOKEN(token, sub_token, rn, dp_comp_f, get_reg_number)
 
   sub_token = strtok(NULL, "\0"); 
-  if(strlen(sub_token) == 0){
+  if(strlen(sub_token) == 0) {
     token->format = INV_F;
     return;
   } else {
@@ -183,14 +183,14 @@ void tokenise_comp(token_t *token, char *sub_token){
 
 }
 
-void tokenise_mov(token_t *token, char *sub_token){
+void tokenise_mov(token_t *token, char *sub_token) {
   token->format = DP_MOV_F;
 
   sub_token = strtok(NULL, ",");
   SET_IN_TOKEN(token, sub_token, rd, dp_mov_f, get_reg_number)
 
   sub_token = strtok(NULL, "\0");
-  if(strlen(sub_token) == 0){
+  if(strlen(sub_token) == 0) {
     token->format = INV_F;
     return;
   } else {
@@ -198,7 +198,7 @@ void tokenise_mov(token_t *token, char *sub_token){
   }
 }
 
-void tokenise_ncomp(token_t *token, char *sub_token){
+void tokenise_ncomp(token_t *token, char *sub_token) {
   token->format = DP_NCOMP_F;
 
   INCREMENT_IF_STARTS_WITH(sub_token, ' ')
@@ -208,7 +208,7 @@ void tokenise_ncomp(token_t *token, char *sub_token){
   SET_IN_TOKEN(token, sub_token, rn, dp_ncomp_f, get_reg_number)
 
   sub_token = strtok(NULL, "\0"); 
-  if(strlen(sub_token) == 0){
+  if(strlen(sub_token) == 0) {
     token->format = INV_F;
     return;
   } else {
@@ -216,7 +216,7 @@ void tokenise_ncomp(token_t *token, char *sub_token){
   }
 }
 
-void tokenise_m(token_t *token, char *sub_token){
+void tokenise_m(token_t *token, char *sub_token) {
   token->format = M_F;
 
   sub_token = strtok(NULL, ","); 
@@ -229,7 +229,7 @@ void tokenise_m(token_t *token, char *sub_token){
   SET_IN_TOKEN(token, sub_token, rs, m_f, get_reg_number)
 }
 
-void tokenise_ma(token_t *token, char *sub_token){
+void tokenise_ma(token_t *token, char *sub_token) {
   token->format = MA_F;
 
   sub_token = strtok(NULL, ","); 
@@ -245,7 +245,7 @@ void tokenise_ma(token_t *token, char *sub_token){
   SET_IN_TOKEN(token, sub_token, rn, ma_f, get_reg_number)
 }
 
-void tokenise_sdt(token_t *token, char *sub_token){
+void tokenise_sdt(token_t *token, char *sub_token) {
   token->format = SDT_F;
 
   INCREMENT_IF_STARTS_WITH(sub_token, ' ')
@@ -255,7 +255,7 @@ void tokenise_sdt(token_t *token, char *sub_token){
   SET_IN_TOKEN(token, sub_token, rd, sdt_f, get_reg_number)
 
   sub_token = strtok(NULL, "\0"); 
-  if(strlen(sub_token) == 0){
+  if(strlen(sub_token) == 0) {
     token->format = INV_F;
     return;
   } else {
@@ -263,7 +263,7 @@ void tokenise_sdt(token_t *token, char *sub_token){
   }
 }
 
-void tokenise_b(token_t *token, char *sub_token){
+void tokenise_b(token_t *token, char *sub_token) {
   token->format = B_F;
 
   SET_IN_TOKEN_STR(token, sub_token, cond, b_f)
@@ -271,11 +271,11 @@ void tokenise_b(token_t *token, char *sub_token){
   SET_IN_TOKEN_STR(token, sub_token, offset, b_f)
 }
 
-void tokenise_andeq(token_t *token, char *sub_token){
+void tokenise_andeq(token_t *token, char *sub_token) {
   token->format = ANDEQ_F;
 }
 
-void tokenise_lsl(token_t *token, char *sub_token){
+void tokenise_lsl(token_t *token, char *sub_token) {
   token->format = LSL_F;
 
   sub_token = strtok(NULL, ",");
@@ -286,8 +286,7 @@ void tokenise_lsl(token_t *token, char *sub_token){
 }
 
 
-void tokenise_line(token_t *token, const char *line){
-
+void tokenise_line(token_t *token, const char *line) {
   size_t line_length = strlen(line);
  
   char *sub_token;
@@ -324,12 +323,11 @@ void tokenise_line(token_t *token, const char *line){
   GOTO_TYPE_FUNC(token, sub_token, "andeq", tokenise_andeq )
   GOTO_TYPE_FUNC(token, sub_token, "lsl", tokenise_lsl )
 
-  if (sub_token[0] == 'b'){
+  if (sub_token[0] == 'b') {
     tokenise_b(token, sub_token);
-    return ; 
+    return; 
   }
 
   token->format = INV_F;
-  
 }
 

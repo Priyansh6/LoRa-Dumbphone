@@ -7,7 +7,7 @@
 USAGE 
 assemble_M(token_t t);
 
-this Function is tasked with populating a word with the format specified
+This function is tasked with populating a word with the format specified
 by a multiply instruction.
 */
 word assemble_M(token_t t);

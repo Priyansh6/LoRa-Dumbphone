@@ -5,7 +5,6 @@
 
 #include "symboltable.h"
 
-
 key_value_list_t *alloc_key_value_list() {
   key_value_list_t *p = (key_value_list_t *) malloc(sizeof(key_value_list_t));
   p->head = NULL;
@@ -70,7 +69,6 @@ void pprint_key_value_list(key_value_list_t *ll) {
   }
 }
 
-
 int hash_label(const char *label) {
   int s = 0;
   for (int i = 0; i < strlen(label); i++) {
@@ -93,7 +91,10 @@ void add_label(symbol_table_t *st, const char *label, address addr) {
   add_to_key_value_list(bucket, label, addr);
 }
 
-void init_symbol_table(symbol_table_t *st, address (*get)(symbol_table_t *st, const char *label), void (*add)(symbol_table_t *st, const char *label, address addr)) {
+void init_symbol_table(symbol_table_t *st, 
+                       address (*get)(symbol_table_t *st, const char *label), 
+                       void (*add)(symbol_table_t *st, const char *label, 
+                       address addr)) {
   st->buckets = (key_value_list_t **) calloc(NUM_BUCKETS, sizeof(key_value_list_t *));
 
   if (st->buckets == NULL) {
@@ -122,19 +123,3 @@ void pprint_symbol_table(symbol_table_t st) {
     pprint_key_value_list(st.buckets[i]);  
   }
 }
-/*
-int main() {
-  symbol_table_t st;
-  init_symbol_table(&st, get_label, add_label); 
-
-  // Add key-value pair of "label1" and 0x00329 to table
-  st.add(&st, "label1", 0x0329);
-
-  // Get value associated with key "label1" (returns 0x0329)
-  printf("%x\n", st.get(&st, "label1"));
-
-  pprint_symbol_table(st);
-
-  // Free symbol table after use
-  free_symbol_table(&st);
-}*/

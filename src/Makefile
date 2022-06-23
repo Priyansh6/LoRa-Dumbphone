@@ -23,7 +23,7 @@ emulator:
 
 emulate.o: emulate.c
 
-utilities.o: utilities.c utilities.h
+utilities.o: utilities.c
 
 clean:
 	rm -f $(wildcard *.o)

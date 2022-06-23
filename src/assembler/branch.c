@@ -1,13 +1,14 @@
-#include "branch.h"
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
+
+#include "branch.h"
 
 #define COND_CASE(str, val) (strcmp(str, t.contents_f.b_f.cond) == 0) {cond = val;} 
 
 word assemble_B(token_t t, symbol_table_t *st, address inst_addr){
-  word out = 0;
+  word instruction = 0;
 
-  out |= 0xA << 24 ; 
+  SET_BITS(instruction, 0xA, 24);
   
   byte cond;
  
@@ -21,14 +22,14 @@ word assemble_B(token_t t, symbol_table_t *st, address inst_addr){
     cond = 14;
   }
   
-  out |= cond << 28;
+  SET_BITS(instruction, cond, 28);
 
   address label_address = st->get(st, t.contents_f.b_f.offset);
 
   int offset_from_current = (label_address - inst_addr - 8) >> 2;
 
-  out |=  offset_from_current & 0xFFFFFF;
+  SET_BITS(instruction, offset_from_current & 0xFFFFFF, 0);
 
-  return out;
+  return instruction;
 }
 

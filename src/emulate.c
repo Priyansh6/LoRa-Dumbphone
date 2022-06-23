@@ -39,33 +39,40 @@ instruction_t decode_instruction(word w) {
   instruction_t instruction;
   instruction.type = it;
   instruction.cond = BIT_MASK(w, 28, 0xF);
-   
-  if (it == DP) {
-    instruction.contents.dp.i = BIT_MASK(w, 25, 1);
-    instruction.contents.dp.opcode = BIT_MASK(w, 21, 0xF);
-    instruction.contents.dp.s = BIT_MASK(w, 20, 1);
-    instruction.contents.dp.rn = BIT_MASK(w, 16, 0xF); 
-    instruction.contents.dp.rd = BIT_MASK(w, 12, 0xF);
-    instruction.contents.dp.operand2 = w & 0xFFF;
-  } else if (it == M) {
-    instruction.contents.m.a = BIT_MASK(w, 21, 1);
-    instruction.contents.m.s = BIT_MASK(w, 20, 1); 
-    instruction.contents.m.rd = BIT_MASK(w, 16, 0xF);
-    instruction.contents.m.rn = BIT_MASK(w, 12, 0xF);
-    instruction.contents.m.rs = BIT_MASK(w, 8, 0xF);
-    instruction.contents.m.rm = w & 0xF;
-  } else if (it == SDT) {
-    instruction.contents.sdt.i = BIT_MASK(w, 25, 1); 
-    instruction.contents.sdt.p = BIT_MASK(w, 24, 1);
-    instruction.contents.sdt.u = BIT_MASK(w, 23, 1);
-    instruction.contents.sdt.l = BIT_MASK(w, 20, 1);
-    instruction.contents.sdt.rn = BIT_MASK(w, 16, 0xF);
-    instruction.contents.sdt.rd = BIT_MASK(w, 12, 0xF);
-    instruction.contents.sdt.offset = w & 0xFFF;
-  } else if (it == B) {
-    instruction.contents.b.offset = w & 0xFFFFFF;
+  
+  switch (it) {
+    case DP:
+      instruction.contents.dp.i = BIT_MASK(w, 25, 1);
+      instruction.contents.dp.opcode = BIT_MASK(w, 21, 0xF);
+      instruction.contents.dp.s = BIT_MASK(w, 20, 1);
+      instruction.contents.dp.rn = BIT_MASK(w, 16, 0xF); 
+      instruction.contents.dp.rd = BIT_MASK(w, 12, 0xF);
+      instruction.contents.dp.operand2 = w & 0xFFF;
+      break;
+    case M:
+      instruction.contents.m.a = BIT_MASK(w, 21, 1);
+      instruction.contents.m.s = BIT_MASK(w, 20, 1); 
+      instruction.contents.m.rd = BIT_MASK(w, 16, 0xF);
+      instruction.contents.m.rn = BIT_MASK(w, 12, 0xF);
+      instruction.contents.m.rs = BIT_MASK(w, 8, 0xF);
+      instruction.contents.m.rm = w & 0xF;
+      break;
+    case SDT:
+      instruction.contents.sdt.i = BIT_MASK(w, 25, 1); 
+      instruction.contents.sdt.p = BIT_MASK(w, 24, 1);
+      instruction.contents.sdt.u = BIT_MASK(w, 23, 1);
+      instruction.contents.sdt.l = BIT_MASK(w, 20, 1);
+      instruction.contents.sdt.rn = BIT_MASK(w, 16, 0xF);
+      instruction.contents.sdt.rd = BIT_MASK(w, 12, 0xF);
+      instruction.contents.sdt.offset = w & 0xFFF;
+      break;
+    case B:
+      instruction.contents.b.offset = w & 0xFFFFFF;
+      break;
+    default:
+      break;
   }
-
+  
   return instruction;
 }
 
@@ -104,7 +111,7 @@ int execute(instruction_t instruction, state_t *s) {
     case B: execute_B(instruction, s); break;
     case T: execute_T(instruction, s); break;
   }
-  
+
   return 0;
 }
 
@@ -115,8 +122,6 @@ state_t *init_state() {
     exit(EXIT_FAILURE);
   }
   return s;
-  //memset(s->memory, 0, MEMSIZE * sizeof(byte));
-  //memset(s->registers, 0, NOREGS * sizeof(word));
 }
 
 void load_binary(state_t *s, FILE *fp) {
@@ -139,7 +144,6 @@ int main(int argc, char **argv) {
 
   fclose(fp);
   
-
   DEBUG_STATEMENT(
     int i = 0;
     byte curr = s->memory[i]; 

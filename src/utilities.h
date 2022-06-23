@@ -15,10 +15,10 @@
 
 #define BIT_MASK(x, shift, mask) ((x >> shift) & mask)
 #define BOOL_STR(b) (b ? "true" : "false")
+#define SET_BITS(instruction, b, n) instruction |= ((b) << (n))
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdbool.h>
 
 typedef uint8_t byte;
 typedef uint16_t address;
@@ -54,7 +54,6 @@ typedef struct instruction {
     } b;  
   } contents;
 } instruction_t;
-enum InstructionFormat {DP_COMP_F, DP_MOV_F, DP_NCOMP_F, M_F, MA_F, SDT_F, B_F, ANDEQ_F, LSL_F, INV_F};
 
 typedef struct shifted_reg {
   bool is_reg;
@@ -65,6 +64,7 @@ typedef struct shifted_reg {
     byte rs;
   } shifted_vals_t;
 } shifted_reg_t; 
+
 typedef struct shift {
   bool i;
   union values_oper {
@@ -84,9 +84,10 @@ typedef struct address_s {
   } values_addr_t;
 } address_s_t ;
 
+enum InstructionFormat {DP_COMP_F, DP_MOV_F, DP_NCOMP_F, M_F, MA_F, SDT_F, B_F, ANDEQ_F, LSL_F, INV_F};
+
 typedef struct token {
-  enum InstructionFormat format; 
-  //char *free_pointer;
+  enum InstructionFormat format;
   union contents_f_u {
     struct dp_comp_f_s {
       char opcode[LABEL_MAX_LENGTH];
